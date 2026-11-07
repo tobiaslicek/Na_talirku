@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import type { Backend, Change, Row, Table } from "./backend";
 import { daysSince, isoDate } from "./format";
-import type { CookLog, Ingredient, IngredientState, Meal, ShoppingItem, Snapshot, Tag } from "./types";
+import type { CookLog, Ingredient, IngredientState, Meal, ShoppingItem, Snapshot, Tag, Zone } from "./types";
 
 type Action = { type: "replace"; snap: Snapshot } | { type: "change"; change: Change } | { type: "mealIngredients"; mealId: string; ids: string[] };
 
@@ -48,6 +48,17 @@ export interface MealInput {
   ingredientNames: string[];
 }
 
+export interface StockRow {
+  name: string;
+  zone: Zone;
+}
+
+export interface StockResult {
+  added: number;
+  restocked: number;
+  bought: number;
+}
+
 export interface Store {
   snap: Snapshot;
   userId: string | null;
@@ -70,6 +81,12 @@ export interface Store {
   saveMeal: (input: MealInput) => Promise<string>;
   deleteMeal: (id: string) => Promise<void>;
   deleteCook: (id: string) => Promise<void>;
+  mealsUsing: (ingredientId: string) => Meal[];
+  findIngredient: (name: string) => Ingredient | undefined;
+  addIngredient: (input: { name: string; zone: Zone; state: IngredientState }) => Promise<boolean>;
+  updateIngredient: (id: string, patch: Partial<Pick<Ingredient, "name" | "zone" | "state" | "tracked">>) => Promise<boolean>;
+  removeIngredient: (id: string) => Promise<void>;
+  stockPantry: (rows: StockRow[]) => Promise<StockResult>;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -81,7 +98,7 @@ export function useStore() {
 }
 
 const NEXT_STATE: Record<IngredientState, IngredientState> = { mame: "dochazi", dochazi: "doslo", doslo: "mame" };
-const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+export const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
 
 export function StoreProvider({ backend, userId, onError, fallback, children }: { backend: Backend; userId: string | null; onError: (e: unknown) => void; fallback: ReactNode; children: ReactNode }) {
   const [snap, dispatch] = useReducer(reducer, null);
@@ -286,6 +303,79 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
 
       async deleteCook(id) {
         await run(() => remove("cook_log", [id]));
+      },
+
+      mealsUsing(ingredientId) {
+        const ids = new Set(snap.mealIngredients.filter((x) => x.ingredient_id === ingredientId).map((x) => x.meal_id));
+        return snap.meals.filter((m) => ids.has(m.id));
+      },
+
+      findIngredient(name) {
+        const n = norm(name);
+        return snap.ingredients.find((i) => norm(i.name) === n);
+      },
+
+      async addIngredient({ name, zone, state }) {
+        const n = norm(name);
+        if (!n) return false;
+        const existing = snap.ingredients.find((i) => norm(i.name) === n);
+        if (existing) {
+          if (existing.tracked) return false;
+          await run(() => update("ingredients", existing.id, { tracked: true, zone, state }));
+          return true;
+        }
+        const row: Ingredient = { id: crypto.randomUUID(), household_id: hid, name: n, zone, state, tracked: true };
+        await run(() => insert("ingredients", [row as unknown as Row]));
+        return true;
+      },
+
+      async updateIngredient(id, patch) {
+        if (patch.name !== undefined) {
+          const n = norm(patch.name);
+          if (!n || snap.ingredients.some((i) => i.id !== id && norm(i.name) === n)) return false;
+          patch = { ...patch, name: n };
+        }
+        await run(() => update("ingredients", id, patch));
+        return true;
+      },
+
+      async removeIngredient(id) {
+        const used = snap.mealIngredients.some((x) => x.ingredient_id === id);
+        await run(() => (used ? update("ingredients", id, { tracked: false }) : remove("ingredients", [id])));
+      },
+
+      async stockPantry(rows) {
+        const result: StockResult = { added: 0, restocked: 0, bought: 0 };
+        await run(async () => {
+          const touched: Ingredient[] = [];
+          const fresh: Ingredient[] = [];
+          for (const r of rows) {
+            const n = norm(r.name);
+            if (!n || touched.some((t) => norm(t.name) === n)) continue;
+            const existing = snap.ingredients.find((i) => norm(i.name) === n);
+            if (existing) {
+              const patch: Record<string, unknown> = { state: "mame", tracked: true };
+              if (!existing.tracked || existing.zone !== r.zone) patch.zone = r.zone;
+              await update("ingredients", existing.id, patch);
+              touched.push(existing);
+              result.restocked++;
+            } else {
+              const ing: Ingredient = { id: crypto.randomUUID(), household_id: hid, name: n, zone: r.zone, state: "mame", tracked: true };
+              fresh.push(ing);
+              touched.push(ing);
+              result.added++;
+            }
+          }
+          await insert("ingredients", fresh as unknown as Row[]);
+          const open = (snapRef.current?.shop ?? []).filter((x) => !x.done);
+          for (const item of open) {
+            const hit = touched.find((t) => t.id === item.ingredient_id || norm(t.name) === norm(item.name));
+            if (!hit) continue;
+            await update("shopping_items", item.id, { done: true, done_at: now() });
+            result.bought++;
+          }
+        });
+        return result;
       },
     };
   }, [snap, derived, backend, userId, run]);

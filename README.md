@@ -24,9 +24,20 @@ Bez `.env.local` běží aplikace v ukázkovém režimu: data z prototypu se ulo
 
 Lokálně jde všechno pustit i přes Docker: `supabase start`, klíče vypíše `supabase status` a e-maily s odkazem chodí do Inbucketu na `http://127.0.0.1:54324`.
 
+### Čtení fotek do spíže
+
+Funkce `parse-photos` posílá fotky účtenek, nákupu nebo lednice do Claude a vrací seznam položek k potvrzení. Klíč patří jen do Supabase secrets:
+
+```bash
+supabase secrets set ANTHROPIC_API_KEY=...
+supabase functions deploy parse-photos
+```
+
 ### Domácnost
 
 Po prvním přihlášení se založí domácnost i s ukázkovými jídly a spíží. Druhý člen se přihlásí svým e-mailem a zadá kód domácnosti, který najdeš pod kolečkem vpravo nahoře. Funguje i jeden společný účet.
+
+Jídlo z návrhů nebo z detailu jde poslat ve zprávě, stejně tak nákupní seznam. Zpráva obsahuje odkaz, který v aplikaci otevře přímo dané jídlo nebo sdílený nákup k odškrtávání.
 
 ## Deploy na Vercel
 

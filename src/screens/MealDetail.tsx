@@ -7,12 +7,15 @@ import { STATE_LABEL, TAG_LABEL } from "../lib/labels";
 import { gsap, useGSAP, withMotion } from "../lib/motion";
 import { useStore } from "../lib/store";
 import { useCookAction } from "./useCook";
+import { ShareIcon } from "../components/ShareIcon";
+import { useShareMeal } from "./useShare";
 
 export function MealDetail({ id }: { id: string }) {
   const store = useStore();
   const toast = useToast();
   const { close, openEdit } = useSheets();
   const cook = useCookAction();
+  const share = useShareMeal();
   const root = useRef<HTMLDivElement>(null);
   const meal = store.mealById(id);
 
@@ -71,6 +74,10 @@ export function MealDetail({ id }: { id: string }) {
             Přidat chybějící do nákupu
           </button>
         )}
+        <button className="btn ghost" onClick={() => share(id)}>
+          <ShareIcon />
+          Poslat ve zprávě
+        </button>
       </div>
       {history.length > 0 && (
         <div className="history">

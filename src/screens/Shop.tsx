@@ -4,6 +4,8 @@ import { Stitch } from "../plate/Plate";
 import { cap, tidy } from "../lib/format";
 import { pageIntro, useGSAP, withMotion } from "../lib/motion";
 import { useStore } from "../lib/store";
+import { ShareIcon } from "../components/ShareIcon";
+import { useShareShop } from "./useShare";
 
 export function Shop() {
   const store = useStore();
@@ -11,6 +13,7 @@ export function Shop() {
   const root = useRef<HTMLElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState("");
+  const share = useShareShop();
   useGSAP(() => withMotion(() => pageIntro(root.current!)), { scope: root });
 
   const items = store.snap.shop.slice().sort((a, b) => a.created_at.localeCompare(b.created_at));
@@ -32,7 +35,15 @@ export function Shop() {
   return (
     <section ref={root}>
       <header className="page-head">
-        <h1 className="title">Nákup</h1>
+        <div className="page-head-row">
+          <h1 className="title">Nákup</h1>
+          {store.openShop.length > 0 && (
+            <button className="btn ghost" onClick={share}>
+              <ShareIcon />
+              Poslat seznam
+            </button>
+          )}
+        </div>
         <p className="sub">Co odškrtneš, vrátí se do spíže.</p>
       </header>
       <Stitch />

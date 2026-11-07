@@ -10,6 +10,8 @@ import { recommend, type Prefs } from "../lib/recommend";
 import { useStore } from "../lib/store";
 import type { Meal } from "../lib/types";
 import { useCookAction } from "./useCook";
+import { ShareIcon } from "../components/ShareIcon";
+import { useShareMeal } from "./useShare";
 
 const PREFS_KEY = "talirek-prefs";
 let introPlayed = false;
@@ -28,6 +30,7 @@ function SuggestCard({ meal }: { meal: Meal }) {
   const store = useStore();
   const { openMeal } = useSheets();
   const cook = useCookAction();
+  const share = useShareMeal();
   const miss = store.missingOf(meal.id);
   return (
     <article className="s-card">
@@ -48,9 +51,14 @@ function SuggestCard({ meal }: { meal: Meal }) {
             <span className="ok">Všechno máme doma</span>
           )}
         </p>
-        <button className="btn primary" onClick={() => cook(meal.id)}>
-          Tohle uvaříme
-        </button>
+        <div className="s-actions">
+          <button className="btn primary" onClick={() => cook(meal.id)}>
+            Tohle uvaříme
+          </button>
+          <button className="btn ghost icon" onClick={() => share(meal.id)} aria-label={`Poslat ${meal.name} ve zprávě`}>
+            <ShareIcon />
+          </button>
+        </div>
       </div>
     </article>
   );

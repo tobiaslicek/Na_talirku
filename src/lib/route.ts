@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
 
-export type View = "dnes" | "jidla" | "doma" | "nakup";
-const VIEWS: View[] = ["dnes", "jidla", "doma", "nakup"];
+export type View = "dnes" | "jidla" | "spiz" | "nakup";
+const VIEWS: View[] = ["dnes", "jidla", "spiz", "nakup"];
 
-const read = (): View => {
-  const h = location.hash.slice(1) as View;
-  return VIEWS.includes(h) ? h : "dnes";
+export interface Route {
+  view: View;
+  param: string | null;
+}
+
+const read = (): Route => {
+  const [v, param] = location.hash.slice(1).split("/") as [View, string | undefined];
+  if (VIEWS.includes(v)) return { view: v, param: param || null };
+  if ((v as string) === "doma") return { view: "spiz", param: null };
+  return { view: "dnes", param: null };
 };
 
-export function useView() {
-  const [view, setView] = useState<View>(read);
+export function useRoute() {
+  const [route, setRoute] = useState<Route>(read);
   useEffect(() => {
-    const on = () => setView(read());
+    const on = () => setRoute(read());
     addEventListener("hashchange", on);
     return () => removeEventListener("hashchange", on);
   }, []);
-  return view;
+  return route;
 }
+
+export const linkTo = (view: View, param?: string) => `${location.origin}${location.pathname}#${view}${param ? `/${param}` : ""}`;

@@ -6,12 +6,14 @@ import { TabBar } from "./components/TabBar";
 import { ToastProvider, useToast } from "./components/Toast";
 import { supabaseBackend, type Backend } from "./lib/backend";
 import { localBackend, LOCAL_USER } from "./lib/localBackend";
-import { useView } from "./lib/route";
+import { useRoute } from "./lib/route";
 import { StoreProvider, useStore } from "./lib/store";
 import { supabase } from "./lib/supabase";
 import { PlateDefs } from "./plate/Plate";
 import { Login, Onboarding } from "./screens/Gate";
 import { HomeSheet } from "./screens/HomeSheet";
+import { IngredientForm } from "./screens/IngredientForm";
+import { PhotoImport } from "./screens/PhotoImport";
 import { MealDetail } from "./screens/MealDetail";
 import { MealForm } from "./screens/MealForm";
 import { Meals } from "./screens/Meals";
@@ -25,7 +27,7 @@ function Loading() {
 
 function Shell() {
   const store = useStore();
-  const view = useView();
+  const { view, param } = useRoute();
   const [sheet, setSheet] = useState<SheetState>(null);
 
   const sheets = useMemo<Sheets>(
@@ -33,6 +35,8 @@ function Shell() {
       openMeal: (id) => setSheet({ kind: "meal", id }),
       openEdit: (id) => setSheet({ kind: "edit", id }),
       openHome: () => setSheet({ kind: "home" }),
+      openIngredient: (id) => setSheet({ kind: "ingredient", id }),
+      openImport: (files) => setSheet({ kind: "import", files }),
       close: () => setSheet(null),
     }),
     [],
@@ -42,6 +46,12 @@ function Shell() {
     setSheet(null);
     window.scrollTo(0, 0);
   }, [view]);
+
+  useEffect(() => {
+    if (view !== "jidla" || !param) return;
+    if (store.mealById(param)) setSheet({ kind: "meal", id: param });
+    location.replace("#jidla");
+  }, [view, param, store]);
 
   const me = store.snap.members.find((m) => m.user_id === store.userId);
   const initial = (me?.display_name || store.snap.household.name || "?").charAt(0).toUpperCase();
@@ -54,7 +64,7 @@ function Shell() {
       <main className="app">
         {view === "dnes" && <Today key="dnes" />}
         {view === "jidla" && <Meals key="jidla" />}
-        {view === "doma" && <Pantry key="doma" />}
+        {view === "spiz" && <Pantry key="spiz" />}
         {view === "nakup" && <Shop key="nakup" />}
       </main>
       <TabBar view={view} badge={store.openShop.length} />
@@ -62,6 +72,8 @@ function Shell() {
         {sheet?.kind === "meal" && <MealDetail key={sheet.id} id={sheet.id} />}
         {sheet?.kind === "edit" && <MealForm key={sheet.id ?? "new"} id={sheet.id} />}
         {sheet?.kind === "home" && <HomeSheet />}
+        {sheet?.kind === "ingredient" && <IngredientForm key={sheet.id ?? "new"} id={sheet.id} />}
+        {sheet?.kind === "import" && <PhotoImport files={sheet.files} />}
       </Sheet>
     </SheetsCtx.Provider>
   );
