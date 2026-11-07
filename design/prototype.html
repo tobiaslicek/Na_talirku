@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="tc-light" content="#F1F3F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" id="tc-dark" content="#0B1130" media="(prefers-color-scheme: dark)">
+<script>try{document.documentElement.dataset.style=localStorage.getItem("talirek-style-2")||"mix"}catch(e){document.documentElement.dataset.style="mix"}</script>
+<title>Talířek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1&family=Instrument+Sans:wght@400..700&family=Alegreya:ital,wght@0,400..900;1,400..900&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F3F8;--surface:#FFFFFF;--tint:#E3E9F5;--paper:#FBFBF8;
+  --ink:#15204B;--ink-2:#4B5785;--ink-3:#8790B3;
+  --accent:#23398E;--on-accent:#FFFFFF;--accent-text:#23398E;
+  --poppy:#C42E2A;--stitch-blue:#23398E;
+  --line:rgba(35,57,142,.12);--line-strong:rgba(35,57,142,.24);
+  --plate-shadow:0 1px 1px rgba(21,32,75,.05),0 12px 26px -14px rgba(21,32,75,.34),0 3px 7px -3px rgba(21,32,75,.14);
+  --plate-shadow-sm:0 6px 14px -8px rgba(21,32,75,.38),0 1px 3px rgba(21,32,75,.1);
+  --plate-shadow-lg:0 34px 60px -30px rgba(21,32,75,.5),0 10px 22px -10px rgba(21,32,75,.2);
+  --scrim:rgba(11,17,48,.38);
+  --ease-out:cubic-bezier(.23,1,.32,1);--ease-drawer:cubic-bezier(.32,.72,0,1);
+  --serif:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1130;--surface:#131B41;--tint:#1E2959;--paper:#18214B;
+    --ink:#E9EDF8;--ink-2:#A6B0D6;--ink-3:#6E79A6;
+    --accent:#C9D5FA;--on-accent:#0B1130;--accent-text:#B9C8F7;
+    --poppy:#F07065;--stitch-blue:#8EA2E0;
+    --line:rgba(185,200,247,.13);--line-strong:rgba(185,200,247,.26);
+    --plate-shadow:0 14px 30px -14px rgba(0,0,0,.75),0 3px 8px -3px rgba(0,0,0,.5);
+    --plate-shadow-sm:0 8px 16px -8px rgba(0,0,0,.7);
+    --plate-shadow-lg:0 40px 70px -30px rgba(0,0,0,.85),0 10px 24px -10px rgba(0,0,0,.5);
+    --scrim:rgba(3,6,20,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1130;--surface:#131B41;--tint:#1E2959;--paper:#18214B;
+  --ink:#E9EDF8;--ink-2:#A6B0D6;--ink-3:#6E79A6;
+  --accent:#C9D5FA;--on-accent:#0B1130;--accent-text:#B9C8F7;
+  --poppy:#F07065;--stitch-blue:#8EA2E0;
+  --line:rgba(185,200,247,.13);--line-strong:rgba(185,200,247,.26);
+  --plate-shadow:0 14px 30px -14px rgba(0,0,0,.75),0 3px 8px -3px rgba(0,0,0,.5);
+  --plate-shadow-sm:0 8px 16px -8px rgba(0,0,0,.7);
+  --plate-shadow-lg:0 40px 70px -30px rgba(0,0,0,.85),0 10px 24px -10px rgba(0,0,0,.5);
+  --scrim:rgba(3,6,20,.6);
+  color-scheme:dark;
+}
+:root[data-style="kroj"]{
+  --bg:#FFFEFC;--surface:#FFFFFF;--tint:#F4EEE3;--paper:#FBF9F4;
+  --ink:#17141C;--ink-2:#5D5561;--ink-3:#968D98;
+  --accent:#17141C;--on-accent:#FBF7EF;--accent-text:#9E1E27;
+  --ok:#3E6A34;--dot-ok:#17141C;--gold:#C9A040;--velvet:#16131B;
+  --poppy:#C0262D;
+  --line:rgba(23,20,28,.12);--line-strong:rgba(23,20,28,.24);
+  --plate-shadow:0 1px 1px rgba(30,20,20,.05),0 12px 26px -14px rgba(30,20,20,.36),0 3px 7px -3px rgba(30,20,20,.14);
+  --plate-shadow-sm:0 6px 14px -8px rgba(30,20,20,.4),0 1px 3px rgba(30,20,20,.1);
+  --plate-shadow-lg:0 30px 50px -28px rgba(60,30,20,.4),0 8px 18px -8px rgba(60,30,20,.16);
+  --baby:#E2AEBA;
+  --scrim:rgba(16,12,18,.45);
+  --serif:"Alegreya","Iowan Old Style",Georgia,serif;
+  --sans:"Alegreya Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root[data-style="kroj"]:not([data-theme="light"]){
+    --bg:#110F15;--surface:#1B1820;--tint:#2B2531;--paper:#1F1B25;
+    --ink:#F3EEE5;--ink-2:#BCB2B8;--ink-3:#80767F;
+    --accent:#D8B24E;--on-accent:#16131B;--accent-text:#E6BF5C;
+    --ok:#9CC27F;--dot-ok:#E6BF5C;--velvet:#0A090D;--baby:#FBF6EC;
+    --plate-shadow-lg:0 34px 54px -26px rgba(0,0,0,.85),0 10px 22px -10px rgba(0,0,0,.5);
+    --poppy:#EE6B6F;
+    --line:rgba(243,238,229,.12);--line-strong:rgba(243,238,229,.24);
+    --plate-shadow:0 14px 30px -14px rgba(0,0,0,.8),0 3px 8px -3px rgba(0,0,0,.55);
+    --plate-shadow-sm:0 8px 16px -8px rgba(0,0,0,.75);
+    --scrim:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-style="kroj"][data-theme="dark"]{
+  --bg:#110F15;--surface:#1B1820;--tint:#2B2531;--paper:#1F1B25;
+  --ink:#F3EEE5;--ink-2:#BCB2B8;--ink-3:#80767F;
+  --accent:#D8B24E;--on-accent:#16131B;--accent-text:#E6BF5C;
+  --ok:#9CC27F;--dot-ok:#E6BF5C;--velvet:#0A090D;--baby:#FBF6EC;
+  --plate-shadow-lg:0 34px 54px -26px rgba(0,0,0,.85),0 10px 22px -10px rgba(0,0,0,.5);
+  --poppy:#EE6B6F;
+  --line:rgba(243,238,229,.12);--line-strong:rgba(243,238,229,.24);
+  --plate-shadow:0 14px 30px -14px rgba(0,0,0,.8),0 3px 8px -3px rgba(0,0,0,.55);
+  --plate-shadow-sm:0 8px 16px -8px rgba(0,0,0,.75);
+  --scrim:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+html.lock{overflow:hidden}
+body{margin:0;overflow-x:clip;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent-text);outline-offset:3px;border-radius:10px}
+
+.app{max-width:1120px;margin:0 auto;padding:0 20px calc(124px + env(safe-area-inset-bottom,0px))}
+
+.hero{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"copy" "stage" "prefs";padding-top:clamp(64px,7vw,80px)}
+.hero-copy{grid-area:copy;min-width:0}
+.date{margin:0;color:var(--ink-2);font-size:15px}
+.display{font-family:var(--serif);font-optical-sizing:auto;font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:540;font-size:clamp(46px,13vw,92px);line-height:.95;letter-spacing:-.025em;margin:6px 0 0;text-wrap:balance}
+.stage{grid-area:stage;position:relative;width:min(100%,420px);aspect-ratio:1;justify-self:center;margin:28px 0 6px}
+.hero-scroll,.hero-turn{position:absolute;inset:0}
+.plate-shadow{position:absolute;inset:0;border-radius:50%;box-shadow:var(--plate-shadow-lg)}
+.wreath{position:absolute;inset:0;width:100%;height:100%;display:none;pointer-events:none;overflow:visible}
+.plate{display:block;width:100%;height:100%;transform-origin:50% 50%}
+.advise-wrap{position:absolute;inset:0;margin:auto;width:41%;height:41%}
+.advise{position:relative;width:100%;height:100%;border:0;border-radius:50%;background:#23398E;color:#FDFEFF;font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 0;font-weight:560;font-size:clamp(19px,5.2vw,26px);line-height:1.05;letter-spacing:-.01em;box-shadow:inset 0 0 0 5px #23398E,inset 0 0 0 6.2px rgba(253,254,255,.55),0 6px 16px -6px rgba(21,32,75,.5);transition:transform 160ms var(--ease-out)}
+.advise:active{transform:scale(.95)}
+.advise:focus-visible{outline-offset:6px;border-radius:50%}
+
+.prefs{grid-area:prefs;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:22px;min-width:0}
+.pref-label{display:block;font-size:13.5px;color:var(--ink-2);margin-bottom:8px}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line-strong);background:transparent;border-radius:999px;padding:8px 15px;font-size:14.5px;font-weight:500;color:var(--ink);transition:background-color 160ms ease,color 160ms ease,border-color 160ms ease,transform 160ms var(--ease-out)}
+.chip:active{transform:scale(.96)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+@media (min-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr) minmax(0,440px);grid-template-areas:"copy stage" "prefs stage";column-gap:64px;align-items:end}
+  .prefs{align-self:start;margin-top:30px}
+  .stage{margin:0}
+  .hero .chips{margin:0;padding:2px 0;flex-wrap:wrap}
+}
+
+.stitch{display:block;width:100%;height:22px;margin:36px 0 6px}
+.st-r{fill:var(--poppy)}
+.st-b{fill:var(--stitch-blue)}
+.st-l{stroke:var(--stitch-blue)}
+
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:40px 0 18px}
+.sec-head h2,.zone-head h2{font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 0;font-weight:520;font-size:clamp(26px,6.6vw,34px);line-height:1.05;letter-spacing:-.015em;margin:0}
+.link{background:none;border:0;padding:6px 2px;color:var(--accent-text);font-weight:600;font-size:15px;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.quiet{color:var(--ink-2);margin:0}
+
+.dish{display:block;position:relative;border-radius:50%;box-shadow:var(--plate-shadow);aspect-ratio:1}
+.dish.sm{width:64px;box-shadow:var(--plate-shadow-sm)}
+
+.suggest-track{display:grid;grid-auto-flow:column;grid-auto-columns:min(80%,310px);gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -20px;padding:8px 20px 22px}
+.suggest-track::-webkit-scrollbar{display:none}
+.s-card{display:flex;flex-direction:column;scroll-snap-align:center}
+.dish-btn{display:block;width:100%;padding:0;border:0;background:none;border-radius:50%}
+.s-body{display:flex;flex-direction:column;flex:1}
+.s-name{font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 0;font-weight:540;font-size:25px;line-height:1.08;letter-spacing:-.01em;margin:22px 0 6px}
+.s-meta{margin:0;color:var(--ink-2);font-size:14.5px}
+.need{margin:12px 0 18px;font-size:15px;line-height:1.45}
+.need-label{color:var(--ink-2)}
+.need .ok{color:var(--ok,var(--accent-text));font-weight:500}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;border-radius:999px;border:1px solid transparent;font-weight:600;font-size:15.5px;transition:transform 160ms var(--ease-out),background-color 160ms ease}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.ghost{border-color:var(--line-strong);background:transparent;color:var(--ink)}
+.s-body .btn{margin-top:auto;align-self:flex-start}
+@media (min-width:900px){
+  .suggest-track{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;margin:0;padding:8px 0 22px;gap:40px}
+}
+
+.f-row{display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:center;width:100%;padding:12px 0;background:none;border:0;border-bottom:1px solid var(--line);text-align:left;color:inherit}
+.f-text{display:block}
+.f-name{display:block;font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 0;font-size:19px;font-weight:520;line-height:1.15}
+.f-when{display:block;font-size:14px;color:var(--ink-2);margin-top:2px}
+@media (min-width:900px){#forgotten{display:grid;grid-template-columns:1fr 1fr;column-gap:48px}}
+
+.low-box{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+
+.page-head{padding-top:clamp(64px,7vw,80px)}
+.title{font-family:var(--serif);font-optical-sizing:auto;font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:540;font-size:clamp(42px,11.5vw,76px);line-height:.98;letter-spacing:-.022em;margin:0}
+.sub{margin:10px 0 0;color:var(--ink-2);font-size:15.5px;max-width:52ch}
+.page-head + .stitch{margin:26px 0 22px}
+
+.filter{margin-bottom:28px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 18px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 28px}}
+@media (min-width:960px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.m-card{display:block;padding:0;border:0;background:none;color:inherit;text-align:center}
+.m-text{display:block}
+.m-name{display:block;font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 0;font-size:17.5px;font-weight:520;line-height:1.15;margin-top:14px;text-wrap:balance}
+.m-sub{display:block;font-size:13px;line-height:1.35;color:var(--ink-2)}
+.m-name + .m-sub{margin-top:4px}
+
+.receipt{display:flex;align-items:center;gap:16px;width:100%;padding:16px 18px;border-radius:22px;border:1.5px dashed var(--line-strong);background:var(--surface);text-align:left;color:inherit;transition:transform 160ms var(--ease-out)}
+.receipt:active{transform:scale(.985)}
+.ico-lg{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none}
+.receipt-t{display:block;font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 0;font-weight:560;font-size:19px;line-height:1.2}
+.receipt-s{display:block;color:var(--ink-2);font-size:14px;margin-top:2px}
+.zone{margin-top:36px}
+.zone-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.zone-head h2{font-size:clamp(24px,6vw,30px)}
+.zone-count{font-size:14px;color:var(--ink-2)}
+.items{display:flex;flex-wrap:wrap;gap:8px}
+.item{display:inline-flex;align-items:center;gap:9px;min-height:40px;padding:0 15px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:15px;color:var(--ink);transition:transform 160ms var(--ease-out),background-color 160ms ease,color 160ms ease}
+.item:active{transform:scale(.96)}
+.item.static{cursor:default}
+.item.static:active{transform:none}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--dot-ok,var(--accent-text));flex:none}
+[data-s="dochazi"] > .dot{background:transparent;box-shadow:inset 0 0 0 2.2px var(--poppy)}
+[data-s="doslo"] > .dot{background:transparent;box-shadow:inset 0 0 0 1.5px var(--ink-3)}
+.item .tag{color:var(--poppy);font-size:12.5px;font-weight:600}
+.item[data-s="doslo"]{background:transparent;border-style:dashed;color:var(--ink-3)}
+.item[data-s="doslo"] .label{text-decoration:line-through;text-decoration-thickness:1px}
+
+.shop-add{display:flex;gap:10px}
+.shop-add input{flex:1;min-width:0;min-height:48px;padding:0 18px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);font-size:16px}
+.shop-add input::placeholder{color:var(--ink-3)}
+.shop-list{list-style:none;margin:20px 0 0;padding:0}
+.shop-item{border-bottom:1px solid var(--line)}
+.shop-item label{display:flex;align-items:center;gap:14px;padding:15px 2px;cursor:pointer;font-size:17px}
+.shop-for{margin-left:auto;font-size:13px;color:var(--ink-3);text-align:right}
+.shop-empty{padding:18px 0;color:var(--ink-2)}
+.check{appearance:none;-webkit-appearance:none;width:26px;height:26px;margin:0;border-radius:50%;border:1.5px solid var(--accent-text);display:grid;place-items:center;flex:none;cursor:pointer;transition:background-color 160ms ease}
+.check::after{content:"";width:11px;height:6px;border-left:2px solid var(--on-accent);border-bottom:2px solid var(--on-accent);transform:translateY(-1px) rotate(-45deg) scale(.6);opacity:0;transition:transform 200ms var(--ease-out),opacity 120ms ease}
+.check:checked{background:var(--accent)}
+.check:checked::after{opacity:1;transform:translateY(-1px) rotate(-45deg) scale(1)}
+.check:disabled{opacity:.35;cursor:default}
+.check:checked + .shop-name{color:var(--ink-3);text-decoration:line-through}
+#clear-done{margin-top:14px}
+
+.tabbar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,520px);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--surface) 86%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--line);z-index:20}
+@media (min-width:560px){.tabbar{bottom:calc(16px + env(safe-area-inset-bottom,0px));padding-bottom:8px;border:1px solid var(--line);border-radius:26px;box-shadow:0 18px 40px -20px rgba(21,32,75,.35)}}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:var(--ink-3);font:600 12px/1.2 var(--sans);text-decoration:none;border-radius:16px}
+.ico{position:relative;display:grid;place-items:center;width:52px;height:30px;border-radius:15px;transition:background-color 200ms ease}
+.tab[aria-current="page"]{color:var(--accent-text)}
+.tab[aria-current="page"] .ico{background:var(--tint)}
+.badge{position:absolute;top:-3px;right:4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--poppy);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;line-height:1}
+
+.scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity 300ms ease;z-index:40}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:min(100%,560px);max-height:90dvh;transform:translate(-50%,104%);transition:transform 460ms var(--ease-drawer);background:var(--surface);border-radius:28px 28px 0 0;z-index:41;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -10px 40px -20px rgba(11,17,48,.4)}
+.sheet.open{transform:translate(-50%,0)}
+.sheet-grab{display:grid;place-items:center;padding:12px 0 8px;touch-action:none;cursor:grab}
+.sheet-grab span{width:40px;height:5px;border-radius:3px;background:var(--line-strong)}
+.sheet-close{position:absolute;top:12px;right:14px;width:38px;height:38px;border-radius:50%;border:0;background:var(--tint);color:var(--ink);display:grid;place-items:center}
+.sheet-body{overflow:auto;padding:4px 22px 26px;overscroll-behavior:contain}
+.dish.big{width:min(56%,240px);margin:10px auto 0}
+.sheet-title{font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:540;font-size:clamp(28px,7.6vw,36px);line-height:1.04;letter-spacing:-.015em;text-align:center;margin:24px 0 8px;text-wrap:balance}
+.meta{text-align:center;color:var(--ink-2);font-size:15px;margin:0;text-wrap:balance}
+.tags{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:14px 0 0}
+.tag-pill{font-size:13px;padding:4px 11px;border-radius:999px;background:var(--tint);color:var(--accent-text);font-weight:500}
+.ing{list-style:none;padding:0;margin:26px 0 0;border-top:1px solid var(--line)}
+.ing li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:16px}
+.ing .st{margin-left:auto;font-size:13.5px;color:var(--ink-2)}
+.ing li[data-s="doslo"] .st{color:var(--poppy);font-weight:600}
+.sheet-actions{display:grid;gap:10px;margin-top:24px}
+.paper{margin:22px 0 0;padding:6px 16px;background:var(--paper);border-radius:8px;border:1px solid var(--line)}
+.r-row{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line-strong);cursor:pointer}
+.r-row:last-child{border-bottom:0}
+.r-row.off{cursor:default}
+.r-txt{display:block;flex:1;min-width:0}
+.r-raw{display:block;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+.r-map{display:block;font-size:16px}
+.r-row.off .r-map{color:var(--ink-3)}
+.r-zone{font-size:13px;color:var(--ink-2)}
+
+.toast{position:fixed;left:50%;bottom:calc(98px + env(safe-area-inset-bottom,0px));transform:translate(-50%,14px);opacity:0;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:16px;font-size:14.5px;line-height:1.4;width:max-content;max-width:min(92vw,440px);transition:opacity 200ms ease,transform 320ms var(--ease-out);z-index:50;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:560px){.toast{bottom:calc(112px + env(safe-area-inset-bottom,0px))}}
+
+.style-switch{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;z-index:30;display:flex;gap:2px;padding:3px;border-radius:999px;background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 8px 20px -12px rgba(0,0,0,.4)}
+.style-switch button{border:0;background:transparent;border-radius:999px;padding:6px 13px;font:600 13px/1.2 var(--sans);color:var(--ink-2);transition:background-color 160ms ease,color 160ms ease}
+.style-switch button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+@media (prefers-color-scheme:dark){
+  :root[data-style="kroj"]:not([data-theme="light"]) :is(.hero,.page-head){background:var(--velvet);box-shadow:0 0 0 100vmax var(--velvet);clip-path:inset(0 -100vmax)}
+}
+:root[data-style="kroj"][data-theme="dark"] :is(.hero,.page-head){background:var(--velvet);box-shadow:0 0 0 100vmax var(--velvet);clip-path:inset(0 -100vmax)}
+:root[data-style="kroj"] .hero{padding-bottom:30px}
+:root[data-style="kroj"] .page-head{padding-bottom:30px}
+:root[data-style="kroj"] .stitch{height:26px;width:100vw;margin:0 0 8px calc(50% - 50vw)}
+:root[data-style="kroj"] .page-head + .stitch{margin:0 0 28px calc(50% - 50vw)}
+:root[data-style="kroj"] .stitch rect{fill:url(#pRibbon)}
+:root[data-style="kroj"] .wreath{display:block}
+.wreath .bb{fill:var(--baby,#FBF6EC)}
+.rb{fill:var(--ribbon,#16131B)}
+:root[data-style="mix"]{--ribbon:#141C40;--baby:#E2AEBA}
+@media (prefers-color-scheme:dark){:root[data-style="mix"]:not([data-theme="light"]){--baby:#FBF6EC}}
+:root[data-style="mix"][data-theme="dark"]{--baby:#FBF6EC}
+:root[data-style="mix"] .stitch{height:26px;width:100vw;margin:36px 0 8px calc(50% - 50vw)}
+:root[data-style="mix"] .page-head + .stitch{margin:26px 0 26px calc(50% - 50vw)}
+:root[data-style="mix"] .stitch rect{fill:url(#pRibbon)}
+:root[data-style="mix"] .wreath{display:block}
+:root[data-style="mix"] :is(.plate-shadow,.hero-turn){inset:11%}
+:root[data-style="mix"] .advise-wrap{width:34%;height:34%}
+:root[data-style="mix"] .advise{box-shadow:0 8px 18px -8px rgba(21,32,75,.55)}
+:root[data-style="mix"] .advise::before{content:"";position:absolute;inset:6px;border-radius:50%;border:1.5px dashed rgba(253,254,255,.7);pointer-events:none}
+:root[data-style="kroj"] :is(.plate-shadow,.hero-turn){inset:11%}
+:root[data-style="kroj"] .advise-wrap{width:33%;height:33%}
+:root[data-style="kroj"] .advise{background:#B3202A;color:#FFF8EE;font-weight:700;font-style:italic;font-size:clamp(18px,4.8vw,24px);box-shadow:0 8px 18px -8px rgba(110,20,28,.5)}
+:root[data-style="kroj"] .advise::before{content:"";position:absolute;inset:6px;border-radius:50%;border:1.5px dashed rgba(255,246,236,.72);pointer-events:none}
+:root[data-style="kroj"] :is(.display,.title,.sec-head h2,.zone-head h2,.s-name,.m-name,.f-name,.sheet-title,.receipt-t){font-weight:700;letter-spacing:-.008em}
+:root[data-style="kroj"] .display{line-height:.98}
+:root[data-style="kroj"] .btn.primary{box-shadow:inset 0 0 0 2px var(--accent),inset 0 0 0 3px var(--gold)}
+:root[data-style="kroj"] .chips .chip{font-size:15px}
+
+@media (prefers-reduced-motion:reduce){
+  .sheet,.scrim,.toast{transition-duration:1ms}
+}
+</style>
+</head>
+<body>
+<div class="style-switch" role="group" aria-label="Vizuální styl prototypu"><button data-style-set="cibulak">Cibulák</button><button data-style-set="mix">Mix</button><button data-style-set="kroj">Kroj</button></div>
+<main class="app">
+
+  <section class="view" id="v-dnes">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="date" id="today"></p>
+        <h1 class="display">Co si dnes dáme?</h1>
+      </div>
+      <div class="stage">
+        <div class="hero-scroll">
+          <div class="plate-shadow"></div>
+          <div class="hero-turn"><svg class="plate hero-spin" viewBox="0 0 200 200" aria-hidden="true" id="hero-plate"></svg></div>
+          <svg class="wreath" viewBox="0 0 200 200" aria-hidden="true" id="wreath"></svg>
+          <div class="advise-wrap"><button class="advise" id="advise">Poraď mi</button></div>
+        </div>
+      </div>
+      <div class="prefs">
+        <div class="pref"><span class="pref-label" id="l-time">Kolik máme času</span><div class="chips" role="group" aria-labelledby="l-time" data-pref="time"></div></div>
+        <div class="pref"><span class="pref-label" id="l-mood">Na co je chuť</span><div class="chips" role="group" aria-labelledby="l-mood" data-pref="mood"></div></div>
+      </div>
+    </header>
+
+    <svg class="stitch" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pStitch)"/></svg>
+
+    <section class="suggest" id="suggest" hidden aria-live="polite">
+      <div class="sec-head"><h2>Tohle by dnes šlo</h2><button class="link" id="reroll">Jiné tři</button></div>
+      <div class="suggest-track" id="suggest-track"></div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>Dlouho jsme neměli</h2></div>
+      <div id="forgotten"></div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>Dochází</h2></div>
+      <div id="low"></div>
+    </section>
+  </section>
+
+  <section class="view" id="v-jidla" hidden>
+    <header class="page-head">
+      <h1 class="title">Naše jídla</h1>
+      <p class="sub" id="meal-count"></p>
+    </header>
+    <svg class="stitch" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pStitch)"/></svg>
+    <div class="chips filter" id="filters" role="group" aria-label="Filtr jídel"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="view" id="v-doma" hidden>
+    <header class="page-head">
+      <h1 class="title">Co máme doma</h1>
+      <p class="sub">Klepnutím přepneš stav: máme, dochází, došlo.</p>
+    </header>
+    <svg class="stitch" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pStitch)"/></svg>
+    <button class="receipt" id="receipt">
+      <span class="ico-lg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.4-2h5l1.4 2h1.6A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.4" r="3.4"/></svg></span>
+      <span><span class="receipt-t">Vyfotit účtenku</span><span class="receipt-s">Po nákupu se spíž doplní sama</span></span>
+    </button>
+    <div id="zones"></div>
+  </section>
+
+  <section class="view" id="v-nakup" hidden>
+    <header class="page-head">
+      <h1 class="title">Nákup</h1>
+      <p class="sub">Co odškrtneš, vrátí se do spíže.</p>
+    </header>
+    <svg class="stitch" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pStitch)"/></svg>
+    <form class="shop-add" id="shop-add">
+      <input id="shop-input" placeholder="Přidat položku" autocomplete="off" aria-label="Přidat položku do nákupu" enterkeyhint="done">
+      <button class="btn primary" type="submit">Přidat</button>
+    </form>
+    <ul class="shop-list" id="shop-list"></ul>
+    <button class="link" id="clear-done" hidden>Smazat koupené</button>
+  </section>
+
+</main>
+
+<nav class="tabbar" aria-label="Hlavní navigace">
+  <a class="tab" href="#dnes" data-tab="dnes"><span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.2"/></svg></span>Dnes</a>
+  <a class="tab" href="#jidla" data-tab="jidla"><span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="7.5" cy="7.5" r="3.6"/><circle cx="16.5" cy="7.5" r="3.6"/><circle cx="7.5" cy="16.5" r="3.6"/><circle cx="16.5" cy="16.5" r="3.6"/></svg></span>Jídla</a>
+  <a class="tab" href="#doma" data-tab="doma"><span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="3.2" rx="1"/><path d="M6.5 8.2h11V18a3 3 0 0 1-3 3h-5a3 3 0 0 1-3-3z"/><path d="M9.5 12.5h5"/></svg></span>Doma</a>
+  <a class="tab" href="#nakup" data-tab="nakup"><span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.8 9.5h16.4l-1.7 9.1a2 2 0 0 1-2 1.6H7.5a2 2 0 0 1-2-1.6z"/><path d="M8.5 9.5 11 4.2M15.5 9.5 13 4.2"/></svg><span class="badge" id="badge" hidden></span></span>Nákup</a>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" inert>
+  <div class="sheet-grab" id="grab"><span></span></div>
+  <button class="sheet-close" id="sheet-close" aria-label="Zavřít"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button>
+  <div class="sheet-body" id="sheet-body"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(() => {
+const PB = "#23398E", PG = "#8197D3", NB = "\u00A0";
+const KR = "#B8232B", KG = "#C9A040", KL = "#4F7A3A", KP = "#E07A8E";
+let STYLE = ["cibulak", "mix", "kroj"].includes(document.documentElement.dataset.style) ? document.documentElement.dataset.style : "mix";
+const suf = () => STYLE === "kroj" ? "-k" : "";
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const n1 = v => v.toFixed(1);
+const rad = d => d * Math.PI / 180;
+const pol = (a, r, cx = 100, cy = 100) => [cx + r * Math.cos(rad(a)), cy + r * Math.sin(rad(a))];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const plural = (n, a, b, c) => n === 1 ? a : (n >= 2 && n <= 4 ? b : c);
+
+function rng(seed) {
+  let h = 1779033703 ^ seed.length;
+  for (let i = 0; i < seed.length; i++) { h = Math.imul(h ^ seed.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  let a = h >>> 0;
+  return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function smooth(pts) {
+  const m = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+  const s = m(pts[pts.length - 1], pts[0]);
+  let d = `M${n1(s[0])} ${n1(s[1])}`;
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i], q = m(p, pts[(i + 1) % pts.length]);
+    d += `Q${n1(p[0])} ${n1(p[1])} ${n1(q[0])} ${n1(q[1])}`;
+  }
+  return d + "Z";
+}
+function blob(cx, cy, R, r, amp = .08, n = 18) {
+  const a = r() * 6.28, b = r() * 6.28, c = r() * 6.28, pts = [];
+  for (let i = 0; i < n; i++) {
+    const t = i / n * Math.PI * 2;
+    const k = R * (1 + amp * (.6 * Math.sin(3 * t + a) + .4 * Math.sin(5 * t + b) + .25 * Math.sin(7 * t + c)));
+    pts.push([cx + k * Math.cos(t), cy + k * Math.sin(t)]);
+  }
+  return smooth(pts);
+}
+function inDisc(r, cx, cy, R) { const a = r() * Math.PI * 2, k = Math.sqrt(r()) * R; return [cx + k * Math.cos(a), cy + k * Math.sin(a)]; }
+function dots(r, n, cx, cy, R, colors, rmin, rmax, op = 1) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const [x, y] = inDisc(r, cx, cy, R);
+    s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="${(rmin + r() * (rmax - rmin)).toFixed(2)}" fill="${colors[i % colors.length]}"${op < 1 ? ` opacity="${op}"` : ""}/>`;
+  }
+  return s;
+}
+function strokes(r, n, cx, cy, R, len, colors, w) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const [x, y] = inDisc(r, cx, cy, R), [qx, qy] = pol(r() * 360, len, x, y);
+    s += `<path d="M${n1(x)} ${n1(y)}L${n1(qx)} ${n1(qy)}" stroke="${colors[i % colors.length]}" stroke-width="${w}" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+function squares(r, n, cx, cy, R, size, fill, stroke) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const [x, y] = inDisc(r, cx, cy, R);
+    s += `<rect x="${n1(x - size / 2)}" y="${n1(y - size / 2)}" width="${size}" height="${size}" rx="${(size * .24).toFixed(1)}" transform="rotate(${(r() * 90).toFixed(0)} ${n1(x)} ${n1(y)})" fill="${fill}" stroke="${stroke}" stroke-width=".4"/>`;
+  }
+  return s;
+}
+
+const SCALLOP = (() => { const pts = []; for (let i = 0; i < 208; i++) { const t = i / 208 * 360; pts.push(pol(t, 97.5 + .8 * Math.cos(rad(t) * 26))); } return smooth(pts); })();
+
+function rimMarkup() {
+  const vine = [];
+  for (let i = 0; i < 128; i++) { const t = i / 128 * 360; vine.push(pol(t, 83 + 2.3 * Math.sin(rad(t) * 16))); }
+  let s = `<circle cx="100" cy="100" r="71.6" fill="none" stroke="${PB}" stroke-width="1.1"/><circle cx="100" cy="100" r="67.9" fill="none" stroke="${PB}" stroke-width=".45"/><circle cx="100" cy="100" r="69.8" fill="none" stroke="${PB}" stroke-width="1.05" stroke-linecap="round" stroke-dasharray="0 3.655"/>`;
+  s += `<path class="vine" d="${smooth(vine)}" fill="none" stroke="${PB}" stroke-width=".7"/>`;
+  const pome = `<path d="M-6.6 .8C-6.6-4-3.6-6.6 0-6.6S6.6-4 6.6 .8 3.6 7 0 7-6.6 5.6-6.6 .8Z" fill="${PG}" fill-opacity=".5" stroke="${PB}" stroke-width=".8"/><path d="M-3-5.6C-4.7-1.2-4.6 3-2.4 6.6M3-5.6C4.7-1.2 4.6 3 2.4 6.6M0-6.6V7" fill="none" stroke="${PB}" stroke-width=".5"/><path d="M-2.8-6.1-1.7-9.2 0-7.1 1.7-9.2 2.8-6.1Z" fill="${PB}"/><path d="M-7 3.2C-9.6 1.6-11.8-.6-13.6-3.6-10.4-3.2-8.2-1.2-7 3.2Z" fill="${PB}"/><path d="M7 3.2C9.6 1.6 11.8-.6 13.6-3.6 10.4-3.2 8.2-1.2 7 3.2Z" fill="${PB}"/>`;
+  let petals = "";
+  for (let i = 0; i < 5; i++) { const [x, y] = pol(i * 72 - 90, 2.4, 0, 0); petals += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="1.45" fill="${PB}"/>`; }
+  const flower = `${petals}<circle r="1" fill="${PG}"/><path d="M-6.2 4.8-4.1 3.6-2.1 4.9-4.2 6.1Z" fill="${PB}"/><path d="M6.2 4.8 4.1 3.6 2.1 4.9 4.2 6.1Z" fill="${PB}"/><circle cx="0" cy="6.4" r=".7" fill="${PB}"/>`;
+  for (let k = 0; k < 8; k++) {
+    s += `<g transform="rotate(${k * 45} 100 100)"><g class="motif"><g transform="translate(100 16.6)">${pome}</g></g></g>`;
+    s += `<g transform="rotate(${k * 45 + 22.5} 100 100)"><g class="motif"><g transform="translate(100 18.2)">${flower}</g></g></g>`;
+  }
+  return s;
+}
+
+const MEALS = [
+  {id:"svickova",name:"Svíčková na smetaně",min:150,tags:["vikend","maso"],last:23,ing:["hovězí zadní","kořenová zelenina","cibule","smetana ke šlehání","houskový knedlík","brusinky","citron"],dish:{sauce:["#DF9A52","#F2C88C"],side:"knedlik",protein:"maso",meat:["#C29473","#9C6D4F"],garnish:[["smetana",116,86],["brusinky",121,114],["citron",134,74]]}},
+  {id:"gulas",name:"Hovězí guláš",min:150,tags:["vikend","maso"],last:12,ing:["hovězí kližka","cibule","sladká paprika","kmín","česnek","houskový knedlík"],dish:{sauce:["#86361B","#AE5029"],side:"knedlik",protein:"cubes",meat:["#6A2B15","#4A1C0C"],garnish:[["cibulka",121,80]]}},
+  {id:"rizek",name:`Řízek s${NB}bramborovým salátem`,min:60,tags:["maso"],last:9,ing:["vepřová kotleta","vejce","hladká mouka","strouhanka","brambory","sterilované okurky","majonéza","mrkev"],dish:{side:"salat",protein:"rizek",garnish:[["citron",136,72]]}},
+  {id:"kure",name:"Kuře na paprice",min:50,tags:["maso"],last:5,ing:["kuřecí stehna","cibule","sladká paprika","smetana ke šlehání","hladká mouka","těstoviny"],dish:{sauce:["#DB7634","#F0A35A"],side:"testoviny",nest:[78,100,24],protein:"kure",garnish:[["petrzel",114,100]]}},
+  {id:"koprovka",name:`Koprová omáčka s${NB}vejcem`,min:35,tags:["bezmasa"],last:41,ing:["kopr","mléko","smetana ke šlehání","hladká mouka","máslo","vejce","brambory","ocet"],dish:{sauce:["#E2D9B2","#F6F1DC"],side:"brambory",protein:"vejce2",garnish:[["kopr",108,100]]}},
+  {id:"rajska",name:`Rajská omáčka s${NB}masem`,min:120,tags:["vikend","maso"],last:60,ing:["hovězí zadní","rajský protlak","kořenová zelenina","cukr","skořice","houskový knedlík"],dish:{sauce:["#BE3D28","#DC6649"],side:"knedlik",protein:"maso",meat:["#8E4E34","#6A3522"]}},
+  {id:"bramboraky",name:"Bramboráky",min:40,tags:["bezmasa"],last:34,ing:["brambory","vejce","hladká mouka","česnek","majoránka","olej"],dish:{side:"bramborak",garnish:[["smetana",126,129]]}},
+  {id:"cocka",name:"Čočka na kyselo",min:40,tags:["bezmasa"],last:18,ing:["čočka","cibule","hladká mouka","ocet","vejce","sterilované okurky"],dish:{sauce:["#7A5A33","#9C7C50"],sauceR:44,lentils:true,protein:"volske",garnish:[["okurka",74,80]]}},
+  {id:"kulajda",name:"Kulajda",min:40,tags:["polevka","bezmasa"],last:27,ing:["brambory","houby","smetana ke šlehání","kopr","vejce","ocet"],dish:{soup:["#E8DEC2","#FAF6EA"],garnish:[["kostky",100,100],["houby",100,100],["kopr",100,100],["pose",106,96]]}},
+  {id:"cesnecka",name:"Česnečka",min:20,tags:["polevka","bezmasa","rychle"],last:15,ing:["česnek","brambory","kmín","majoránka","chléb","eidam"],dish:{soup:["#EACD88","#F8E8BE"],garnish:[["kostky",100,100],["krutony",100,100],["syr",100,100],["petrzel",100,100]]}},
+  {id:"buchticky",name:"Buchtičky se šodó",min:60,tags:["sladke","bezmasa"],last:70,ing:["hladká mouka","droždí","mléko","máslo","vejce","cukr","bílé víno"],dish:{sauce:["#F0D98F","#FBF0C6"],sauceR:47,side:"buchticky",garnish:[["cukr",100,100]]}},
+  {id:"spagety",name:"Boloňské špagety",min:30,tags:["maso","rychle"],last:3,ing:["špagety","mletá směs","rajský protlak","cibule","česnek","parmazán"],dish:{side:"testoviny",nest:[100,100,36],top:["#A8341D","#C8553A"],garnish:[["syr",100,98],["bazalka",109,90]]}},
+  {id:"syr",name:`Smažený sýr s${NB}hranolky`,min:25,tags:["bezmasa","rychle"],last:20,ing:["eidam","vejce","hladká mouka","strouhanka","hranolky","tatarka"],dish:{side:"hranolky",protein:"syrsmazeny",garnish:[["tatarka",124,131]]}},
+  {id:"ovocne",name:"Ovocné knedlíky",min:50,tags:["sladke","bezmasa"],last:45,ing:["tvaroh","hrubá mouka","vejce","borůvky","máslo","cukr"],dish:{side:"ovocne",garnish:[["maslo",100,101],["tvaroh",100,100],["cukr",100,100]]}},
+  {id:"vepro",name:"Vepřo knedlo zelo",min:120,tags:["vikend","maso"],last:38,ing:["vepřová plec","kysané zelí","cibule","kmín","houskový knedlík"],dish:{sauce:["#A36C3B","#C18B55"],side:"knedlik",protein:"maso",meat:["#A9693F","#7E4927"],garnish:[["zeli",104,70]]}},
+  {id:"kase",name:"Krupicová kaše",min:15,tags:["sladke","bezmasa","rychle"],last:11,ing:["krupice","mléko","máslo","cukr","kakao"],dish:{soup:["#F0E5CB","#FFF9EC"],garnish:[["kakao",100,100],["maslo",100,100]]}}
+];
+const byId = Object.fromEntries(MEALS.map(m => [m.id, m]));
+
+const PANTRY = {
+  lednice: [["máslo","dochazi"],["vejce","mame"],["mléko","mame"],["smetana ke šlehání","doslo"],["tvaroh","doslo"],["eidam","mame"],["parmazán","mame"],["majonéza","dochazi"],["tatarka","doslo"],["mrkev","mame"],["kopr","doslo"],["citron","mame"],["droždí","doslo"],["kysané zelí","doslo"],["houby","doslo"]],
+  mrazak: [["hovězí zadní","mame"],["hovězí kližka","doslo"],["kuřecí stehna","mame"],["vepřová kotleta","doslo"],["vepřová plec","doslo"],["mletá směs","mame"],["hranolky","mame"],["borůvky","mame"],["kořenová zelenina","mame"],["houskový knedlík","dochazi"]],
+  spiz: [["brambory","mame"],["cibule","mame"],["česnek","dochazi"],["hladká mouka","mame"],["hrubá mouka","mame"],["strouhanka","mame"],["krupice","mame"],["cukr","mame"],["těstoviny","mame"],["špagety","mame"],["čočka","mame"],["rajský protlak","mame"],["sladká paprika","mame"],["kmín","mame"],["majoránka","mame"],["skořice","mame"],["kakao","mame"],["ocet","mame"],["olej","mame"],["sterilované okurky","mame"],["brusinky","doslo"],["chléb","dochazi"],["bílé víno","doslo"]]
+};
+const ZONES = [["lednice","Lednice"],["mrazak","Mrazák"],["spiz","Spíž"]];
+const zoneOf = {};
+ZONES.forEach(([z]) => PANTRY[z].forEach(([n]) => zoneOf[n] = z));
+const RECEIPT = [["MLEKO POL. 1,5% 1L","mléko"],["MASLO 82% 250G","máslo"],["SMET.KE SLEH.31%","smetana ke šlehání"],["VEJCE M 10KS","vejce"],["BRUSINKY 350G","brusinky"],["TVAROH MEKKY 250G","tvaroh"],["CESNEK 3KS","česnek"],["ROHLIK TUK.43G","rohlíky"]];
+const TAGS = {rychle:"Rychlovka",vikend:"Na víkend",bezmasa:"Bez masa",maso:"S masem",polevka:"Polévka",sladke:"Sladké"};
+const TIME = [[999,"Je to jedno"],[30,"Do půl hodiny"],[60,"Do hodiny"]];
+const MOOD = [["any","Cokoliv"],["polevka","Polévka"],["bezmasa","Bez masa"],["maso","S masem"],["sladke","Sladké"]];
+const FILTERS = [["all","Vše"],["rychle","Rychlovky"],["polevka","Polévky"],["bezmasa","Bez masa"],["maso","S masem"],["vikend","Na víkend"],["sladke","Sladké"]];
+
+const SIDE = {
+  knedlik: r => {
+    let s = "";
+    [142, 168, 194, 220].forEach(a => {
+      const [x, y] = pol(a, 33), rot = a + 90 + (r() - .5) * 12;
+      let p = "";
+      for (let i = 0; i < 7; i++) p += `<circle cx="${n1((r() - .5) * 19)}" cy="${n1((r() - .5) * 10)}" r="${(.45 + r() * .5).toFixed(2)}" fill="#D7C59B"/>`;
+      s += `<g transform="translate(${n1(x)} ${n1(y)}) rotate(${rot.toFixed(0)})"><rect x="-12.5" y="-8.2" width="25" height="16.4" rx="7.2" fill="#F3EAD2" stroke="#D3C196" stroke-width=".7"/>${p}</g>`;
+    });
+    return s;
+  },
+  brambory: r => {
+    let s = "";
+    [132, 160, 188, 216, 244].forEach(a => {
+      const [x, y] = pol(a, 31);
+      s += `<path d="${blob(x, y, 8, r, .14, 12)}" fill="url(#gPot)" stroke="#C49A3C" stroke-width=".5"/><ellipse cx="${n1(x - 2.2)}" cy="${n1(y - 2.6)}" rx="2.6" ry="1.4" fill="#FFF5D0" opacity=".55"/>`;
+    });
+    return s;
+  },
+  testoviny: (r, D) => {
+    const [cx, cy, R] = D.nest || [100, 100, 30];
+    const col = ["#E9C463", "#DDB04E", "#F0D17C"];
+    let s = "";
+    for (let i = 0; i < 26; i++) {
+      const p = [0, 1, 2, 3].map(() => inDisc(r, cx, cy, R).map(n1).join(" "));
+      s += `<path d="M${p[0]}C${p[1]} ${p[2]} ${p[3]}" fill="none" stroke="${col[i % 3]}" stroke-width="3" stroke-linecap="round"/>`;
+    }
+    return s;
+  },
+  hranolky: r => {
+    let s = "";
+    for (let i = 0; i < 12; i++) {
+      const x = 62 + r() * 32, y = 72 + r() * 56;
+      s += `<rect x="${n1(x - 1.9)}" y="${n1(y - 9)}" width="3.8" height="18" rx="1.4" transform="rotate(${((r() - .5) * 120).toFixed(0)} ${n1(x)} ${n1(y)})" fill="#EBBE55" stroke="#C7952F" stroke-width=".45"/>`;
+    }
+    return s;
+  },
+  salat: r => `<path d="${blob(80, 100, 25, r, .1, 16)}" fill="#EEDFA8" stroke="#DCC983" stroke-width=".5"/>` + squares(r, 16, 80, 100, 20, 3.8, "#F7EDC6", "#DCC88C") + dots(r, 8, 80, 100, 19, ["#E7883A"], 1, 1.5) + dots(r, 7, 80, 100, 19, ["#7D9C44"], 1, 1.4),
+  bramborak: r => {
+    let s = "";
+    [[84, 80], [78, 118], [118, 98]].forEach(([x, y]) => {
+      s += `<path d="${blob(x, y, 18, r, .12, 16)}" fill="url(#gBram)" stroke="#A4652A" stroke-width=".6"/>` + dots(r, 16, x, y, 14, ["#8A5220", "#9B6128"], .4, .9, .75) + dots(r, 6, x, y, 12, ["#EAC07A"], .4, .8, .9);
+    });
+    return s;
+  },
+  buchticky: () => {
+    let s = `<g transform="rotate(-8 100 100)">`;
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      const x = 100 + (i - 1) * 12.6, y = 100 + (j - 1) * 12.6;
+      s += `<rect x="${n1(x - 6)}" y="${n1(y - 6)}" width="12" height="12" rx="3.8" fill="#DFAA5B" stroke="#BF8A3C" stroke-width=".5"/><rect x="${n1(x - 4.4)}" y="${n1(y - 4.6)}" width="8.8" height="6" rx="3" fill="#EBC47F"/>`;
+    }
+    return s + "</g>";
+  },
+  ovocne: r => {
+    let s = "";
+    [[84, 86], [116, 86], [84, 116], [116, 116]].forEach(([x, y]) => {
+      x += (r() - .5) * 3; y += (r() - .5) * 3;
+      const [bx, by] = pol(r() * 360, 8, x, y);
+      s += `<circle cx="${n1(x)}" cy="${n1(y)}" r="12.6" fill="#F8F4EA" stroke="#E3DAC3" stroke-width=".8"/><path d="${blob(bx, by, 3.2, r, .2, 8)}" fill="#4B3A72" opacity=".85"/><ellipse cx="${n1(x - 4)}" cy="${n1(y - 4.5)}" rx="3.4" ry="2" fill="#FFFFFF" opacity=".7"/>`;
+    });
+    return s;
+  }
+};
+
+const PROT = {
+  maso: (r, D) => {
+    const [c, e] = D.meat;
+    let s = "";
+    [-36, -4, 28].forEach(a => {
+      const [x, y] = pol(a, 25);
+      s += `<g transform="translate(${n1(x)} ${n1(y)}) rotate(${(a + 90 + (r() - .5) * 16).toFixed(0)})"><rect x="-13.5" y="-7.4" width="27" height="14.8" rx="3.6" fill="${c}" stroke="${e}" stroke-opacity=".55" stroke-width=".6"/><path d="M-9-2C-4-3.4 3-.6 9.5-2.4M-8 3.2C-2 2 4 4 8.5 2.6" fill="none" stroke="#FFFFFF" stroke-opacity=".2" stroke-width=".7"/></g>`;
+    });
+    return s;
+  },
+  cubes: (r, D) => squares(r, 7, 118, 98, 15, 9.2, D.meat[0], D.meat[1]),
+  rizek: r => `<path d="${blob(114, 97, 25, r, .15, 16)}" fill="url(#gGold)" stroke="#B7762A" stroke-width=".7"/>` + dots(r, 46, 114, 97, 21, ["#B86F24", "#EDC570", "#C98535"], .35, .8, .9),
+  kure: (r, D) => {
+    let s = "";
+    [-34, 4, 42].forEach(a => { const [x, y] = pol(a, 24); s += `<path d="${blob(x, y, 10, r, .16, 12)}" fill="#D99E68" stroke="#B57843" stroke-width=".6"/>`; });
+    return s + `<path d="${blob(118, 100, 16, r, .2, 14)}" fill="url(#s-${D.id})" opacity=".6"/>`;
+  },
+  vejce2: () => [[123, 86], [125, 114]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="10" ry="7.6" fill="#FCFBF6" stroke="#E7E1D2" stroke-width=".6"/><circle cx="${x + .6}" cy="${y}" r="4.6" fill="#F1B43B"/><circle cx="${x - .6}" cy="${y - 1.3}" r="1.3" fill="#F8D688"/>`).join(""),
+  volske: r => `<path d="${blob(120, 96, 15.5, r, .16, 16)}" fill="#FDFCF8" stroke="#ECE7DA" stroke-width=".6"/><circle cx="121" cy="95" r="6" fill="url(#gYolk)"/><circle cx="119.4" cy="93.2" r="1.6" fill="#FBE0A0"/>`,
+  syrsmazeny: r => `<g transform="rotate(-18 116 100)"><rect x="100" y="88.5" width="32" height="23" rx="6.5" fill="url(#gGold)" stroke="#B7762A" stroke-width=".7"/></g>` + dots(r, 30, 116, 100, 12, ["#B86F24", "#EDC570"], .35, .75, .9) + `<path d="${blob(101, 109, 3.4, r, .2, 8)}" fill="#F5DD86"/>`
+};
+
+const GAR = {
+  smetana: (r, x, y) => `<path d="${blob(x, y, 7.2, r, .14, 14)}" fill="#FCF9F1" stroke="#E9E1CE" stroke-width=".5"/><path d="M${n1(x - 3.2)} ${n1(y + .6)}c.4-2.6 4.6-3 5.4-.4.6 2-2 3.2-3.2 2" fill="none" stroke="#E6DDC8" stroke-width=".7" stroke-linecap="round"/>`,
+  brusinky: (r, x, y) => {
+    let s = `<path d="${blob(x, y, 7.4, r, .12, 14)}" fill="#FBF5EA"/>`;
+    for (let i = 0; i < 7; i++) { const [px, py] = inDisc(r, x, y, 4.6); s += `<circle cx="${n1(px)}" cy="${n1(py)}" r="2.2" fill="#A2212E"/><circle cx="${n1(px - .7)}" cy="${n1(py - .7)}" r=".6" fill="#E3767C"/>`; }
+    return s;
+  },
+  citron: (r, x, y) => {
+    let s = `<circle cx="${x}" cy="${y}" r="6.6" fill="#F6DC5E" stroke="#E2B12B" stroke-width="1.3"/>`;
+    for (let i = 0; i < 8; i++) { const [a, b] = pol(i * 45, 5.2, x, y); s += `<path d="M${x} ${y}L${n1(a)} ${n1(b)}" stroke="#FCF1BD" stroke-width=".6"/>`; }
+    return s + `<circle cx="${x}" cy="${y}" r=".9" fill="#FCF1BD"/>`;
+  },
+  petrzel: (r, x, y) => {
+    let s = "";
+    for (let i = 0; i < 11; i++) { const [px, py] = inDisc(r, x, y, 26); s += `<ellipse cx="${n1(px)}" cy="${n1(py)}" rx="1.5" ry=".9" transform="rotate(${(r() * 180).toFixed(0)} ${n1(px)} ${n1(py)})" fill="${i % 2 ? "#5A8C3A" : "#7DAA55"}"/>`; }
+    return s;
+  },
+  kopr: (r, x, y) => strokes(r, 16, x, y, 28, 3.4, ["#6A9844", "#7FAE57"], .7),
+  okurka: (r, x, y) => [[x, y], [x + 10, y - 5]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="5.6" fill="#AFC86E" stroke="#4E7A2C" stroke-width="1.3"/><circle cx="${a}" cy="${b}" r="2.4" fill="#D9E6AE"/>`).join(""),
+  cibulka: (r, x, y) => [[0, 0], [6, 4], [-2, 7]].map(([a, b]) => `<circle cx="${x + a}" cy="${y + b}" r="4.2" fill="none" stroke="#F4EEE1" stroke-width="1.3"/>`).join(""),
+  cukr: (r, x, y) => dots(r, 46, x, y, 30, ["#FFFFFF", "#FBF7EE"], .35, .75, .95),
+  kakao: (r, x, y) => dots(r, 70, x, y, 24, ["#6A3D23", "#83522F"], .35, .8, .85),
+  maslo: (r, x, y) => `<path d="${blob(x, y, 7, r, .18, 12)}" fill="#F3CD5E" opacity=".92"/><ellipse cx="${n1(x - 1.8)}" cy="${n1(y - 2)}" rx="2" ry="1.1" fill="#FBE7A6"/>`,
+  syr: (r, x, y) => strokes(r, 18, x, y, 20, 3.2, ["#F3D57C", "#E8C55E", "#F6DE93"], 1.3),
+  bazalka: (r, x, y) => `<g transform="translate(${x} ${y}) rotate(-25)"><ellipse rx="4.4" ry="2.4" cx="-3.4" fill="#3F7F35"/><ellipse rx="4" ry="2.2" cx="3.6" cy="1" fill="#4E9140"/><path d="M-7.4 0H7.2" stroke="#2E6328" stroke-width=".4"/></g>`,
+  houby: (r, x, y) => {
+    let s = "";
+    for (let i = 0; i < 6; i++) { const [px, py] = inDisc(r, x, y, 34); s += `<path transform="translate(${n1(px)} ${n1(py)}) rotate(${(r() * 360).toFixed(0)})" d="M-3.4 0A3.4 3.4 0 0 1 3.4 0H1.1V3.2H-1.1V0Z" fill="#9C7450" stroke="#7A5638" stroke-width=".4"/>`; }
+    return s;
+  },
+  krutony: (r, x, y) => squares(r, 10, x, y, 32, 4.6, "#D59C47", "#AE762C"),
+  kostky: (r, x, y) => squares(r, 8, x, y, 36, 5.2, "#F2E3A9", "#DCC783"),
+  zeli: (r, x, y) => {
+    let s = "";
+    for (let i = 0; i < 18; i++) {
+      const [px, py] = inDisc(r, x, y, 14), a = r() * 360, [qx, qy] = pol(a, 5, px, py), [cx, cy] = pol(a + 40, 3, px, py);
+      s += `<path d="M${n1(px)} ${n1(py)}Q${n1(cx)} ${n1(cy)} ${n1(qx)} ${n1(qy)}" fill="none" stroke="${i % 2 ? "#D8CF86" : "#E4DD9F"}" stroke-width="1.6" stroke-linecap="round"/>`;
+    }
+    return s;
+  },
+  tatarka: (r, x, y) => `<path d="${blob(x, y, 7.6, r, .14, 14)}" fill="#F7F2DD" stroke="#E5DDC0" stroke-width=".5"/>` + dots(r, 7, x, y, 5, ["#6F9A48"], .35, .55),
+  tvaroh: (r, x, y) => {
+    let s = "";
+    for (let i = 0; i < 14; i++) { const [px, py] = inDisc(r, x, y, 26); s += `<path d="${blob(px, py, 1.3 + r() * 1.3, r, .25, 7)}" fill="#FFFFFF" stroke="#ECE6D6" stroke-width=".3"/>`; }
+    return s;
+  },
+  pose: (r, x, y) => `<path d="${blob(x, y, 9.5, r, .14, 14)}" fill="#FDFCF7" stroke="#EDE8DA" stroke-width=".5"/><circle cx="${x + 1}" cy="${y - .5}" r="4.4" fill="#F1B33C"/><circle cx="${x - .3}" cy="${y - 1.8}" r="1.2" fill="#F8D688"/>`
+};
+
+function dish(m) {
+  const D = m.dish; D.id = m.id;
+  const r = rng(m.id);
+  let s = "";
+  if (D.soup) s += `<circle cx="100" cy="100" r="58" fill="url(#s-${m.id})"/><circle cx="100" cy="100" r="53" fill="none" stroke="#FFFFFF" stroke-opacity=".28" stroke-width="1.2"/>`;
+  else if (D.sauce) s += `<path d="${blob(100, 100, D.sauceR || 41, r, .1, 20)}" fill="url(#s-${m.id})"/>`;
+  if (D.lentils) s += dots(r, 110, 100, 100, 40, ["#6A4C2A", "#A08259", "#836338"], .6, 1.1, .9);
+  if (D.side) s += SIDE[D.side](r, D);
+  if (D.top) s += `<path d="${blob(100, 98, 17, r, .18, 16)}" fill="url(#s-${m.id})"/>` + dots(r, 14, 100, 98, 13, ["#7A2614", "#8F3A22"], .6, 1.2);
+  if (D.protein) s += PROT[D.protein](r, D);
+  (D.garnish || []).forEach(([g, x, y]) => s += GAR[g](r, x, y));
+  return s;
+}
+const DISH = {};
+MEALS.forEach(m => DISH[m.id] = dish(m));
+
+function rimKroj() {
+  const vine = [];
+  for (let i = 0; i < 128; i++) { const t = i / 128 * 360; vine.push(pol(t, 83 + 2 * Math.sin(rad(t) * 20))); }
+  let s = `<circle cx="100" cy="100" r="71.4" fill="none" stroke="${KR}" stroke-width=".9" stroke-linecap="round" stroke-dasharray="2.6 1.9"/><circle cx="100" cy="100" r="68.3" fill="none" stroke="${KG}" stroke-width=".6"/>`;
+  s += `<path class="vine" d="${smooth(vine)}" fill="none" stroke="${KL}" stroke-width=".65"/>`;
+  let ros = "";
+  for (let i = 0; i < 6; i++) ros += `<ellipse cx="0" cy="-3.7" rx="1.9" ry="3.2" fill="${KR}" transform="rotate(${i * 60})"/>`;
+  for (let i = 0; i < 6; i++) { const [x, y] = pol(i * 60 - 60, 6, 0, 0); ros += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r=".85" fill="${KP}"/>`; }
+  ros += `<circle r="1.7" fill="${KG}"/>`;
+  const sprig = `<path d="M-7 .6C-3.5-1.4 2.5 1.6 7-.4" fill="none" stroke="${KL}" stroke-width=".6"/><path d="M-3.6-.3C-3-2.6-1.2-3.4.2-3.2-.6-1.6-1.8-.6-3.6-.3Z" fill="${KL}"/><path d="M2.4.5C2.8 2.8 4.6 3.6 6 3.3 5.2 1.8 4 .9 2.4.5Z" fill="${KL}"/><path d="M-.6.2C-.2 2.2 1.2 3.2 2.4 3.1 1.8 1.6.8.6-.6.2Z" fill="${KL}" opacity=".8"/><circle cx="-7.4" cy=".7" r="1.25" fill="${KP}"/><circle cx="7.4" cy="-.5" r="1.25" fill="${KR}"/>`;
+  for (let k = 0; k < 10; k++) {
+    s += `<g transform="rotate(${k * 36} 100 100)"><g class="motif"><g transform="translate(100 17)">${ros}</g></g></g>`;
+    s += `<g transform="rotate(${k * 36 + 18} 100 100)"><g class="motif"><g transform="translate(100 17.4)">${sprig}</g></g></g>`;
+  }
+  return s;
+}
+
+const FL = {
+  rose: [0, 1, 2, 3, 4, 5].map(i => { const [x, y] = pol(i * 60 - 90, 3.5, 0, 0); return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.5" fill="#EC97AB"/>`; }).join("") + `<circle r="3.9" fill="#DB6A86"/><circle r="2" fill="#C24A6A"/><path d="M-1.6-2.6a3 3 0 0 1 3.4.2" fill="none" stroke="#F6C3CF" stroke-width=".7" stroke-linecap="round"/>`,
+  red: [0, 1, 2, 3, 4].map(i => { const [x, y] = pol(i * 72 - 90, 3.4, 0, 0); return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.2" fill="#C8262E"/>`; }).join("") + `<circle r="1.9" fill="#2A1A1E"/><circle r=".8" fill="#F2C14E"/>`,
+  daisy: Array.from({ length: 10 }, (_, i) => `<ellipse cy="-3.9" rx="1.25" ry="3.1" fill="#FFFFFF" stroke="#D6CCBE" stroke-width=".5" transform="rotate(${i * 36})"/>`).join("") + `<circle r="2.1" fill="#F2B93B"/>`,
+  corn: (() => { const p = []; for (let i = 0; i < 16; i++) { const [x, y] = pol(i * 22.5 - 90, i % 2 ? 2.6 : 6, 0, 0); p.push(x.toFixed(2) + " " + y.toFixed(2)); } return `<path d="M${p.join("L")}Z" fill="#4E6FC9"/><circle r="1.6" fill="#2C3E86"/>`; })(),
+  yellow: [0, 1, 2, 3, 4, 5].map(i => { const [x, y] = pol(i * 60, 2.7, 0, 0); return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="2.3" fill="#F2C14E"/>`; }).join("") + `<circle r="1.4" fill="#D9862B"/>`
+};
+
+function wreathMarkup() {
+  const r = rng("venecek");
+  const types = ["daisy", "red", "rose", "corn", "yellow", "rose", "red", "daisy", "rose", "corn", "red", "rose", "yellow", "red", "daisy"];
+  const n = types.length, a0 = 198, a1 = 342;
+  let leaves = "", baby = "", fl = "";
+  for (let i = 0; i < n + 5; i++) {
+    const a = a0 - 8 + (a1 - a0 + 16) * i / (n + 4), [x, y] = pol(a, 82.5 + (r() - .5) * 4);
+    const rot = a + 90 + (i % 2 ? 35 : -35) + (r() - .5) * 20;
+    leaves += `<g transform="translate(${n1(x)} ${n1(y)}) rotate(${rot.toFixed(0)})"><path class="lf" d="M0 0C3-3.2 9-3.4 12.5 0 9 3.4 3 3.2 0 0Z" fill="${i % 3 ? "#5E8A45" : "#44703A"}"/></g>`;
+  }
+  for (let i = 0; i < 20; i++) { const [x, y] = pol(a0 + r() * (a1 - a0), 86 + r() * 7); baby += `<circle cx="${n1(x)}" cy="${n1(y)}" r="${(.6 + r() * .5).toFixed(2)}" class="bb"/>`; }
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1), a = a0 + (a1 - a0) * t, [x, y] = pol(a, 82 + (i % 2 ? 3 : -2.5) + (r() - .5) * 2);
+    const sc = (.82 + r() * .25) * (1 + .28 * (1 - Math.abs(t - .5) * 2));
+    fl += `<g transform="translate(${n1(x)} ${n1(y)}) scale(${sc.toFixed(2)}) rotate(${(r() * 360).toFixed(0)})"><g class="fl">${FL[types[i]]}</g></g>`;
+  }
+  return `<g>${leaves}</g><g>${baby}</g>${fl}`;
+}
+
+function buildHero() {
+  $("#hero-plate").innerHTML = `<use href="#pbase${suf()}"/>${STYLE === "kroj" ? rimKroj() : rimMarkup()}`;
+}
+function syncStyleUI() {
+  $$("[data-style-set]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.styleSet === STYLE)));
+  const k = STYLE === "kroj";
+  $("#tc-light").setAttribute("content", k ? "#FFFEFC" : "#F1F3F8");
+  $("#tc-dark").setAttribute("content", k ? "#0A090D" : "#0B1130");
+}
+
+function buildDefs() {
+  let g = "";
+  MEALS.forEach(m => { const c = m.dish.soup || m.dish.sauce || m.dish.top; if (c) g += `<radialGradient id="s-${m.id}" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[0]}"/></radialGradient>`; });
+  const host = document.createElement("div");
+  host.innerHTML = `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<radialGradient id="gPlate" gradientUnits="userSpaceOnUse" cx="100" cy="100" r="98"><stop offset=".63" stop-color="#FFFFFF"/><stop offset=".685" stop-color="#EAEEF7"/><stop offset=".72" stop-color="#FDFEFF"/><stop offset=".95" stop-color="#F7F9FC"/><stop offset="1" stop-color="#E9EDF6"/></radialGradient>
+<radialGradient id="gPot" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#F3DC8C"/><stop offset="1" stop-color="#D3A642"/></radialGradient>
+<radialGradient id="gGold" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#EBBE62"/><stop offset="1" stop-color="#C27D2B"/></radialGradient>
+<radialGradient id="gBram" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#DEA44F"/><stop offset="1" stop-color="#B26F31"/></radialGradient>
+<radialGradient id="gYolk" cx="38%" cy="35%" r="70%"><stop offset="0" stop-color="#F8CB55"/><stop offset="1" stop-color="#E49B1C"/></radialGradient>
+<clipPath id="cWell"><circle cx="100" cy="100" r="64"/></clipPath>
+<g id="pbase"><path d="${SCALLOP}" fill="url(#gPlate)" stroke="${PB}" stroke-opacity=".16" stroke-width=".6"/><circle cx="100" cy="100" r="94.2" fill="none" stroke="${PB}" stroke-width=".9"/></g>
+<g id="rim">${rimMarkup()}</g>
+<radialGradient id="gPlateK" gradientUnits="userSpaceOnUse" cx="100" cy="100" r="98"><stop offset=".63" stop-color="#FFFFFF"/><stop offset=".685" stop-color="#F1ECE2"/><stop offset=".72" stop-color="#FFFEFB"/><stop offset=".95" stop-color="#FAF7F1"/><stop offset="1" stop-color="#EEE8DD"/></radialGradient>
+<g id="pbase-k"><circle cx="100" cy="100" r="97.6" fill="url(#gPlateK)" stroke="#9C7A2C" stroke-opacity=".35" stroke-width=".6"/><circle cx="100" cy="100" r="95" fill="none" stroke="${KG}" stroke-width="1.8"/><circle cx="100" cy="100" r="92.3" fill="none" stroke="${KR}" stroke-width=".55"/></g>
+<g id="rim-k">${rimKroj()}</g>
+<pattern id="pRibbon" width="30" height="26" patternUnits="userSpaceOnUse">
+<rect class="rb" width="30" height="26"/><rect width="30" height="2.6" fill="#C9A040"/><rect y="23.4" width="30" height="2.6" fill="#C9A040"/>
+<g fill="#C9A040" opacity=".85">${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${2.5 + i * 5}" cy="5.4" r=".75"/><circle cx="${2.5 + i * 5}" cy="20.6" r=".75"/>`).join("")}</g>
+<path d="M15 13C11.5 9.6 7.8 9.4 5.6 11.2 8.4 13.2 11.6 13.8 15 13Z" fill="#5E8A45"/><path d="M15 13C18.5 16.4 22.2 16.6 24.4 14.8 21.6 12.8 18.4 12.2 15 13Z" fill="#5E8A45"/>
+<circle cx="15" cy="13" r="4.4" fill="#E88AA0"/><circle cx="15" cy="13" r="3" fill="#D8607E"/><path d="M13.4 13.3a1.6 1.6 0 1 1 2 1.5" fill="none" stroke="#AE3B5B" stroke-width=".7" stroke-linecap="round"/>
+<circle cx="0" cy="13" r="2" fill="#C8262E"/><circle cx="30" cy="13" r="2" fill="#C8262E"/><circle cx="0" cy="13" r=".7" fill="#F2C14E"/><circle cx="30" cy="13" r=".7" fill="#F2C14E"/>
+<circle cx="7" cy="17.6" r=".8" fill="#F6F1E8"/><circle cx="23" cy="8.4" r=".8" fill="#F6F1E8"/>
+</pattern>
+<pattern id="pStitch" width="28" height="22" patternUnits="userSpaceOnUse">
+<path class="st-l" d="M0 2.5H28M0 19.5H28" stroke-width="1.1" stroke-dasharray="3 2.6" fill="none"/>
+<g class="st-r"><path d="M14 4.4 15.6 7.2 14 10 12.4 7.2Z"/><path d="M14 12 15.6 14.8 14 17.6 12.4 14.8Z"/><path d="M15 11 17.8 9.4 20.6 11 17.8 12.6Z"/><path d="M7.4 11 10.2 9.4 13 11 10.2 12.6Z"/></g>
+<g class="st-b"><circle cx="14" cy="11" r="1.3"/><circle cx="9.6" cy="6.6" r=".9"/><circle cx="18.4" cy="6.6" r=".9"/><circle cx="9.6" cy="15.4" r=".9"/><circle cx="18.4" cy="15.4" r=".9"/><path d="M-1.8 11 0 9.6 1.8 11 0 12.4Z"/><path d="M26.2 11 28 9.6 29.8 11 28 12.4Z"/></g>
+</pattern>
+${g}</defs></svg>`;
+  document.body.prepend(host.firstElementChild);
+  buildHero();
+  $("#wreath").innerHTML = wreathMarkup();
+}
+
+const plateSVG = m => `<svg class="plate" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><use href="#pbase${suf()}"/><use href="#rim${suf()}"/><g clip-path="url(#cWell)"><g transform="translate(100 100) scale(1.14) translate(-100 -100)">${DISH[m.id]}</g></g></svg>`;
+const dishEl = (m, cls = "") => `<span class="dish ${cls}">${plateSVG(m)}</span>`;
+
+const KEY = "talirek-v1";
+const DAY = 864e5;
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const iso = d => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`; };
+const daysSince = s => Math.max(0, Math.round((today - new Date(s + "T00:00:00")) / DAY));
+
+function initial() {
+  const cooked = {}, pantry = {};
+  MEALS.forEach(m => cooked[m.id] = iso(today - m.last * DAY));
+  Object.values(PANTRY).flat().forEach(([n, s]) => pantry[n] = s);
+  return { cooked, pantry, shop: [{ name: "banány", done: false }, { name: "bílé jogurty", done: false }, { name: "rohlíky", done: false }], prefs: { time: 999, mood: "any" } };
+}
+let S = null;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+if (!S || !S.cooked) S = initial();
+const base = initial();
+MEALS.forEach(m => { if (!S.cooked[m.id]) S.cooked[m.id] = base.cooked[m.id]; });
+Object.keys(base.pantry).forEach(n => { if (!S.pantry[n]) S.pantry[n] = base.pantry[n]; });
+S.prefs = Object.assign({ time: 999, mood: "any" }, S.prefs);
+S.shop = S.shop || [];
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+const stateOf = n => S.pantry[n] || "doslo";
+const has = n => stateOf(n) !== "doslo";
+const missing = m => m.ing.filter(n => !has(n));
+const STL = { mame: "máme", dochazi: "dochází", doslo: "došlo" };
+function ago(d) {
+  if (d <= 0) return "dnes";
+  if (d === 1) return "včera";
+  if (d < 7) return `před ${d}${NB}dny`;
+  if (d < 30) { const w = Math.round(d / 7); return w === 1 ? "před týdnem" : `před ${w}${NB}týdny`; }
+  const mo = Math.round(d / 30);
+  return mo === 1 ? "před měsícem" : `před ${mo}${NB}měsíci`;
+}
+const minutes = m => m.min < 60 ? `${m.min}${NB}min` : (m.min % 60 ? `${Math.floor(m.min / 60)}${NB}h ${m.min % 60}${NB}min` : `${m.min / 60}${NB}h`);
+
+let picks = [];
+function pick(exclude = []) {
+  const { time, mood } = S.prefs;
+  let pool = MEALS.filter(m => m.min <= time && (mood === "any" || m.tags.includes(mood)) && daysSince(S.cooked[m.id]) > 1);
+  const fresh = pool.filter(m => !exclude.includes(m.id));
+  if (fresh.length >= 3) pool = fresh;
+  return pool.map(m => {
+    const cov = (m.ing.length - missing(m).length) / m.ing.length;
+    const d = Math.min(daysSince(S.cooked[m.id]), 45);
+    return { m, score: cov * 55 + d * .9 + Math.random() * 22 };
+  }).sort((a, b) => b.score - a.score).slice(0, 3).map(x => x.m);
+}
+
+function addShop(name, forMeal) {
+  if (S.shop.some(x => !x.done && x.name === name)) return false;
+  S.shop.push({ name, done: false, for: forMeal || "" });
+  return true;
+}
+
+function needLine(m) {
+  const miss = missing(m);
+  return miss.length ? `<span class="need-label">Dokoupit:</span> ${miss.join(", ")}` : `<span class="ok">Všechno máme doma</span>`;
+}
+function card(m) {
+  return `<article class="s-card"><button class="dish-btn" data-open="${m.id}" aria-label="Detail: ${m.name}">${dishEl(m)}</button><div class="s-body"><h3 class="s-name">${m.name}</h3><p class="s-meta">${minutes(m)}, naposled ${ago(daysSince(S.cooked[m.id]))}</p><p class="need">${needLine(m)}</p><button class="btn primary" data-cook="${m.id}">Tohle uvaříme</button></div></article>`;
+}
+
+function renderPrefs() {
+  $('[data-pref="time"]').innerHTML = TIME.map(([v, l]) => `<button class="chip" aria-pressed="${S.prefs.time === v}" data-pref-set="time" data-v="${v}">${l}</button>`).join("");
+  $('[data-pref="mood"]').innerHTML = MOOD.map(([v, l]) => `<button class="chip" aria-pressed="${S.prefs.mood === v}" data-pref-set="mood" data-v="${v}">${l}</button>`).join("");
+}
+function renderSuggest() {
+  $("#suggest-track").innerHTML = picks.length ? picks.map(card).join("") : `<p class="quiet">Na tohle teď nic nemáme. Zkus jiný čas nebo chuť.</p>`;
+}
+function renderForgotten() {
+  const list = MEALS.map(m => ({ m, d: daysSince(S.cooked[m.id]) })).filter(x => x.d >= 21).sort((a, b) => b.d - a.d).slice(0, 6);
+  $("#forgotten").innerHTML = list.length ? list.map(({ m, d }) => `<button class="f-row" data-open="${m.id}">${dishEl(m, "sm")}<span class="f-text"><span class="f-name">${m.name}</span><span class="f-when">Naposled ${ago(d)}</span></span></button>`).join("") : `<p class="quiet">Všechno jste měli v posledních třech týdnech.</p>`;
+}
+function renderLow() {
+  const low = Object.keys(S.pantry).filter(n => S.pantry[n] === "dochazi");
+  $("#low").innerHTML = low.length
+    ? `<div class="low-box">${low.map(n => `<span class="item static" data-s="dochazi"><span class="dot"></span><span class="label">${n}</span></span>`).join("")}</div><button class="btn ghost" data-low>Přidat do nákupu</button>`
+    : `<p class="quiet">Nic nedochází.</p>`;
+}
+function renderToday() {
+  $("#today").textContent = cap(new Intl.DateTimeFormat("cs-CZ", { weekday: "long", day: "numeric", month: "long" }).format(new Date()));
+  renderPrefs();
+  if (picks.length) renderSuggest();
+  renderForgotten();
+  renderLow();
+}
+
+let filter = "all";
+function renderCatalog() {
+  $("#filters").innerHTML = FILTERS.map(([v, l]) => `<button class="chip" aria-pressed="${filter === v}" data-filter="${v}">${l}</button>`).join("");
+  const list = MEALS.filter(m => filter === "all" || m.tags.includes(filter)).sort((a, b) => a.name.localeCompare(b.name, "cs"));
+  const c = list.length, word = plural(c, "jídlo", "jídla", "jídel");
+  $("#meal-count").textContent = filter === "all" ? `${c} ${word}, která děláme dokola` : `${c} ${word}`;
+  $("#grid").innerHTML = list.map(m => `<button class="m-card" data-open="${m.id}">${dishEl(m)}<span class="m-text"><span class="m-name">${m.name}</span><span class="m-sub">${minutes(m)}</span><span class="m-sub">naposled ${ago(daysSince(S.cooked[m.id]))}</span></span></button>`).join("");
+}
+
+function chip(n) {
+  const s = stateOf(n);
+  return `<button class="item" data-item="${n}" data-s="${s}" aria-label="${cap(n)}, ${STL[s]}"><span class="dot"></span><span class="label">${n}</span>${s === "dochazi" ? `<span class="tag">dochází</span>` : ""}</button>`;
+}
+function renderPantry() {
+  $("#zones").innerHTML = ZONES.map(([z, l]) => {
+    const items = PANTRY[z], low = items.filter(([n]) => stateOf(n) === "dochazi").length;
+    const count = `${items.length} ${plural(items.length, "položka", "položky", "položek")}${low ? `, ${low} dochází` : ""}`;
+    return `<section class="zone"><div class="zone-head"><h2>${l}</h2><span class="zone-count">${count}</span></div><div class="items">${items.map(([n]) => chip(n)).join("")}</div></section>`;
+  }).join("");
+}
+
+function renderShop() {
+  $("#shop-list").innerHTML = S.shop.length
+    ? S.shop.map((it, i) => `<li class="shop-item"><label><input class="check" type="checkbox" data-shop="${i}" ${it.done ? "checked" : ""}><span class="shop-name">${it.name}</span>${it.for ? `<small class="shop-for">${it.for}</small>` : ""}</label></li>`).join("")
+    : `<li class="shop-empty">Nákup je prázdný. Přidej položku, nebo si vyber jídlo a chybějící suroviny se doplní samy.</li>`;
+  $("#clear-done").hidden = !S.shop.some(x => x.done);
+  const open = S.shop.filter(x => !x.done).length, b = $("#badge");
+  b.hidden = !open; b.textContent = open;
+}
+
+const sheet = $("#sheet"), scrim = $("#scrim"), body = $("#sheet-body");
+let lastFocus = null;
+function openSheet() {
+  lastFocus = document.activeElement;
+  sheet.inert = false;
+  sheet.classList.add("open");
+  scrim.classList.add("open");
+  document.documentElement.classList.add("lock");
+  body.scrollTop = 0;
+  requestAnimationFrame(() => $("#sheet-close").focus({ preventScroll: true }));
+}
+function closeSheet() {
+  if (!sheet.classList.contains("open")) return;
+  sheet.classList.remove("open");
+  scrim.classList.remove("open");
+  sheet.style.transform = "";
+  sheet.inert = true;
+  document.documentElement.classList.remove("lock");
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+}
+function openMeal(id) {
+  const m = byId[id], miss = missing(m);
+  body.innerHTML = `${dishEl(m, "big")}<h2 class="sheet-title" id="sheet-title">${m.name}</h2><p class="meta">${minutes(m)}, naposled ${ago(daysSince(S.cooked[id]))}</p><div class="tags">${m.tags.map(t => `<span class="tag-pill">${TAGS[t]}</span>`).join("")}</div>
+<ul class="ing">${m.ing.map(n => { const s = stateOf(n); return `<li data-s="${s}"><span class="dot"></span>${cap(n)}<span class="st">${s === "doslo" ? "nemáme" : STL[s]}</span></li>`; }).join("")}</ul>
+<div class="sheet-actions"><button class="btn primary" data-cook="${id}">Tohle uvaříme</button>${miss.length ? `<button class="btn ghost" data-buy="${id}">Přidat chybějící do nákupu</button>` : ""}</div>`;
+  openSheet();
+  if (motion()) G.from($(".dish.big .plate", body), { rotation: -140, duration: 1.1, ease: "expo.out", delay: .04 });
+}
+function openReceipt() {
+  body.innerHTML = `<h2 class="sheet-title" id="sheet-title">Účtenka z nákupu</h2><p class="meta">Ukázka: takhle AI přečte zkratky z účtenky a roztřídí je.</p>
+<div class="paper">${RECEIPT.map(([raw, name], i) => { const z = zoneOf[name]; return `<label class="r-row${z ? "" : " off"}"><input class="check" type="checkbox" data-r="${i}" ${z ? "checked" : "disabled"}><span class="r-txt"><span class="r-raw">${raw}</span><span class="r-map">${name}</span></span><span class="r-zone">${z ? ZONES.find(x => x[0] === z)[1].toLowerCase() : "nesledujeme"}</span></label>`; }).join("")}</div>
+<div class="sheet-actions"><button class="btn primary" data-r-save>Doplnit do spíže</button></div>`;
+  openSheet();
+}
+
+let tt;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 3600); }
+
+function cook(id) {
+  const m = byId[id], miss = missing(m);
+  S.cooked[id] = iso(today);
+  miss.forEach(n => addShop(n, m.name));
+  save();
+  renderShop();
+  if (!$("#v-dnes").hidden) { renderSuggest(); renderForgotten(); }
+  if (!$("#v-jidla").hidden) renderCatalog();
+  toast(miss.length ? `Dobrou chuť. Do nákupu přibylo: ${miss.join(", ")}.` : "Dobrou chuť. Všechno máte doma.");
+}
+
+const G = window.gsap, ST = window.ScrollTrigger;
+const RM = matchMedia("(prefers-reduced-motion: reduce)");
+const motion = () => !!(G && ST) && !RM.matches;
+if (G && ST) G.registerPlugin(ST);
+let vctx = null, introDone = false;
+
+function intro() {
+  const vine = $("#hero-plate .vine"), L = vine.getTotalLength();
+  G.timeline({ defaults: { ease: "power3.out" } })
+    .from(".hero .date, .hero .display", { y: 28, autoAlpha: 0, duration: .9, stagger: .08 })
+    .from(".stage", { autoAlpha: 0, scale: .94, duration: 1 }, .1)
+    .from(".hero-spin", { rotation: -160, duration: 1.7, ease: "expo.out" }, .1)
+    .fromTo(vine, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, .3)
+    .from("#hero-plate .motif", { autoAlpha: 0, y: -5, scale: .6, transformOrigin: "50% 50%", duration: .45, stagger: .045 }, .45)
+    .from(".advise-wrap", { scale: .82, autoAlpha: 0, duration: .7, ease: "back.out(1.5)" }, .95)
+    .from(".prefs .pref", { y: 14, autoAlpha: 0, duration: .6, stagger: .08 }, .7);
+  if (STYLE !== "cibulak") {
+    G.from("#wreath .lf", { scale: .2, autoAlpha: 0, transformOrigin: "0% 50%", duration: .55, ease: "power3.out", stagger: { each: .025, from: "center" }, delay: .7 });
+    G.from("#wreath .fl", { scale: .2, autoAlpha: 0, transformOrigin: "50% 50%", duration: .6, ease: "back.out(1.8)", stagger: { each: .04, from: "center" }, delay: .85 });
+  }
+}
+function revealPlates(items, opts) {
+  const dishes = items.map(i => $(".dish", i)), plates = items.map(i => $(".plate", i)), texts = items.map(i => $(opts.text, i)).filter(Boolean);
+  G.set(dishes, { autoAlpha: 0, x: opts.x || 0, y: opts.y || 0, scale: opts.scale || 1 });
+  G.set(plates, { rotation: opts.rot });
+  G.set(texts, { autoAlpha: 0, y: 10 });
+  ST.batch(items, {
+    start: "top 92%", once: true, interval: .08,
+    onEnter: batch => {
+      G.to(batch.map(i => $(".dish", i)), { autoAlpha: 1, x: 0, y: 0, scale: 1, duration: .8, ease: "power3.out", stagger: .08 });
+      G.to(batch.map(i => $(".plate", i)), { rotation: 0, duration: 1.3, ease: "expo.out", stagger: .08 });
+      G.to(batch.map(i => $(opts.text, i)).filter(Boolean), { autoAlpha: 1, y: 0, duration: .6, ease: "power3.out", stagger: .08, delay: .12 });
+    }
+  });
+}
+function animateView(v) {
+  if (vctx) { vctx.revert(); vctx = null; }
+  if (!motion()) return;
+  vctx = G.context(() => {
+    if (v === "dnes") {
+      if (!introDone) { introDone = true; intro(); }
+      const st = { trigger: ".hero", start: "top top", end: "bottom top", scrub: .6 };
+      G.to(".hero-scroll", { yPercent: -6, scale: .9, ease: "none", scrollTrigger: st });
+      G.to(".hero-turn", { rotation: 80, ease: "none", scrollTrigger: { ...st } });
+      $$("#v-dnes .stitch").forEach(el => STYLE === "kroj"
+        ? G.fromTo(el, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1.3, ease: "power2.inOut", delay: .5 })
+        : G.fromTo(el, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", ease: "none", scrollTrigger: { trigger: el, start: "top 96%", end: "top 55%", scrub: .4 } }));
+      const rows = $$("#forgotten .f-row");
+      if (rows.length) revealPlates(rows, { x: -28, rot: -170, text: ".f-text" });
+    } else {
+      G.from(`#v-${v} .page-head > *`, { y: 22, autoAlpha: 0, duration: .75, ease: "power3.out", stagger: .07 });
+      G.fromTo(`#v-${v} .stitch`, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1.2, ease: "power2.inOut", delay: .12 });
+      if (v === "jidla") revealPlates($$("#grid .m-card"), { y: 30, scale: .92, rot: -80, text: ".m-text" });
+    }
+  });
+  requestAnimationFrame(() => ST.refresh());
+}
+
+function advise(spin) {
+  picks = pick(picks.map(m => m.id));
+  renderSuggest();
+  const sec = $("#suggest");
+  const first = sec.hidden;
+  sec.hidden = false;
+  if (!motion()) { sec.scrollIntoView({ block: "start" }); return; }
+  if (spin) {
+    G.to(".hero-spin", { rotation: "+=360", duration: 1.05, ease: "power3.inOut" });
+    G.fromTo(".advise-wrap", { scale: 1 }, { scale: .9, duration: .14, yoyo: true, repeat: 1, ease: "power2.out" });
+  }
+  const cards = $$("#suggest .s-card"), delay = spin ? .7 : .05;
+  G.from(cards.map(c => $(".dish", c)), { autoAlpha: 0, x: -50, scale: .9, duration: .9, ease: "power3.out", stagger: .12, delay });
+  G.from(cards.map(c => $(".plate", c)), { rotation: -220, duration: 1.4, ease: "expo.out", stagger: .12, delay });
+  G.from(cards.map(c => $(".s-body", c)), { autoAlpha: 0, y: 14, duration: .6, ease: "power3.out", stagger: .1, delay: delay + .2 });
+  ST.refresh();
+  if (spin || first) setTimeout(() => sec.scrollIntoView({ behavior: "smooth", block: "start" }), spin ? 600 : 0);
+}
+
+const VIEWS = ["dnes", "jidla", "doma", "nakup"];
+const RENDER = { dnes: renderToday, jidla: renderCatalog, doma: renderPantry, nakup: renderShop };
+function route() {
+  const h = location.hash.slice(1), v = VIEWS.includes(h) ? h : "dnes";
+  closeSheet();
+  VIEWS.forEach(n => {
+    $("#v-" + n).hidden = n !== v;
+    const t = $(`.tab[data-tab="${n}"]`);
+    if (n === v) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current");
+  });
+  RENDER[v]();
+  window.scrollTo(0, 0);
+  animateView(v);
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-open],[data-cook],[data-buy],[data-pref-set],[data-filter],[data-item],[data-low],[data-r-save],[data-style-set],#advise,#reroll,#receipt,#scrim,#sheet-close,#clear-done");
+  if (!t) return;
+  const d = t.dataset;
+  if (d.open) return openMeal(d.open);
+  if (d.cook) { closeSheet(); return cook(d.cook); }
+  if (d.buy) {
+    const m = byId[d.buy], added = missing(m).filter(n => addShop(n, m.name));
+    save(); renderShop(); closeSheet();
+    return toast(added.length ? `Do nákupu přibylo: ${added.join(", ")}.` : "Všechno už v nákupu je.");
+  }
+  if (d.prefSet) {
+    S.prefs[d.prefSet] = d.prefSet === "time" ? +d.v : d.v;
+    save(); renderPrefs();
+    if (!$("#suggest").hidden) advise(false);
+    return;
+  }
+  if (d.filter) {
+    filter = d.filter; renderCatalog();
+    if (motion()) {
+      const cards = $$("#grid .m-card");
+      G.from(cards.map(c => $(".dish", c)), { autoAlpha: 0, scale: .92, duration: .5, ease: "power3.out", stagger: .04 });
+      G.from(cards.map(c => $(".plate", c)), { rotation: -70, duration: .9, ease: "expo.out", stagger: .04 });
+      ST.refresh();
+    }
+    return;
+  }
+  if (d.item !== undefined) {
+    const n = d.item, next = { mame: "dochazi", dochazi: "doslo", doslo: "mame" }[stateOf(n)];
+    S.pantry[n] = next; save(); renderPantry();
+    const el = $(`[data-item="${CSS.escape(n)}"]`); if (el) el.focus({ preventScroll: true });
+    return;
+  }
+  if (d.low !== undefined) {
+    const low = Object.keys(S.pantry).filter(n => S.pantry[n] === "dochazi"), added = low.filter(n => addShop(n));
+    save(); renderShop();
+    return toast(added.length ? `Do nákupu přibylo: ${added.join(", ")}.` : "Všechno už v nákupu je.");
+  }
+  if (d.rSave !== undefined) {
+    const names = $$("[data-r]:checked", body).map(i => RECEIPT[+i.dataset.r][1]);
+    names.forEach(n => S.pantry[n] = "mame");
+    const bought = $$("[data-r]", body).filter(i => i.checked || i.disabled).map(i => RECEIPT[+i.dataset.r][1]);
+    S.shop.forEach(x => { if (bought.includes(x.name)) x.done = true; });
+    save(); closeSheet(); renderPantry(); renderShop();
+    return toast(`Spíž je doplněná (${names.length} ${plural(names.length, "položka", "položky", "položek")}).`);
+  }
+  if (d.styleSet) {
+    if (d.styleSet === STYLE) return;
+    STYLE = d.styleSet;
+    document.documentElement.dataset.style = STYLE;
+    try { localStorage.setItem("talirek-style-2", STYLE); } catch (e) {}
+    syncStyleUI(); buildHero(); introDone = false; route();
+    return;
+  }
+  if (t.id === "advise") return advise(true);
+  if (t.id === "reroll") return advise(false);
+  if (t.id === "receipt") return openReceipt();
+  if (t.id === "scrim" || t.id === "sheet-close") return closeSheet();
+  if (t.id === "clear-done") { S.shop = S.shop.filter(x => !x.done); save(); renderShop(); }
+});
+
+document.addEventListener("change", e => {
+  const i = e.target.closest("[data-shop]");
+  if (!i) return;
+  const it = S.shop[+i.dataset.shop];
+  it.done = i.checked;
+  if (it.done && S.pantry[it.name]) { S.pantry[it.name] = "mame"; toast(`${cap(it.name)} je zpátky ve spíži.`); }
+  save(); renderShop();
+  const again = $(`[data-shop="${i.dataset.shop}"]`); if (again) again.focus({ preventScroll: true });
+});
+
+$("#shop-add").addEventListener("submit", e => {
+  e.preventDefault();
+  const inp = $("#shop-input"), v = inp.value.trim().toLowerCase();
+  if (!v) return;
+  if (!addShop(v)) toast(`${cap(v)} už v nákupu je.`);
+  inp.value = ""; save(); renderShop(); inp.focus();
+});
+
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+
+(() => {
+  const grab = $("#grab");
+  let y0 = null, dy = 0, t0 = 0;
+  grab.addEventListener("pointerdown", e => { y0 = e.clientY; t0 = performance.now(); dy = 0; sheet.style.transition = "none"; grab.setPointerCapture(e.pointerId); });
+  grab.addEventListener("pointermove", e => { if (y0 === null) return; dy = Math.max(0, e.clientY - y0); sheet.style.transform = `translate(-50%,${dy}px)`; });
+  const end = () => {
+    if (y0 === null) return;
+    const v = dy / Math.max(1, performance.now() - t0);
+    y0 = null; sheet.style.transition = "";
+    if (dy > 110 || v > .6) closeSheet(); else sheet.style.transform = "";
+  };
+  grab.addEventListener("pointerup", end);
+  grab.addEventListener("pointercancel", end);
+})();
+
+buildDefs();
+syncStyleUI();
+renderShop();
+addEventListener("hashchange", route);
+route();
+if (document.fonts && ST) document.fonts.ready.then(() => ST.refresh());
+})();
+</script>
+</body>
+</html>
