@@ -38,7 +38,9 @@ export const Plate = memo(function Plate({ meal, photoUrl, size }: PlateProps) {
 
 const heroHtml = () => `<use href="#pbase"/>${rimMarkup()}`;
 
-export const HeroPlate = memo(function HeroPlate({ children }: { children?: ReactNode }) {
+const CAPTION = "co máme doma \u00b7 co dokoupit \u00b7 co uvaříme";
+
+export const HeroPlate = memo(function HeroPlate({ children, caption = true }: { children?: ReactNode; caption?: boolean }) {
   const plate = useMemo(heroHtml, []);
   const wreath = useMemo(wreathMarkup, []);
   return (
@@ -49,6 +51,16 @@ export const HeroPlate = memo(function HeroPlate({ children }: { children?: Reac
           <svg className="plate hero-spin" viewBox="0 0 200 200" aria-hidden="true" dangerouslySetInnerHTML={{ __html: plate }} />
         </div>
         <svg className="wreath" viewBox="0 0 200 200" aria-hidden="true" dangerouslySetInnerHTML={{ __html: wreath }} />
+        {caption && (
+          <svg className="caption" viewBox="0 0 200 200" aria-hidden="true">
+            <path id="caption-arc" d="M11 100A89 89 0 0 0 189 100" fill="none" />
+            <text>
+              <textPath href="#caption-arc" startOffset="50%" textAnchor="middle">
+                {CAPTION}
+              </textPath>
+            </text>
+          </svg>
+        )}
         {children}
       </div>
     </div>

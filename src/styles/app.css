@@ -115,38 +115,68 @@ button {
 }
 
 .hero {
+  position: relative;
+  min-height: 100svh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "copy" "stage" "prefs";
-  padding-top: clamp(64px, 7vw, 80px);
+  grid-template-areas: "eyebrow" "l1" "stage" "l2";
+  align-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 72px) 0 calc(96px + env(safe-area-inset-bottom, 0px));
 }
-.hero-copy {
-  grid-area: copy;
-  min-width: 0;
-}
-.date {
-  margin: 0;
+.eyebrow {
+  grid-area: eyebrow;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 clamp(14px, 3svh, 28px);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
   color: var(--ink-2);
-  font-size: 15px;
 }
-.display {
+.eyebrow span + span::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--poppy);
+  vertical-align: 1px;
+}
+.dl {
+  position: relative;
+  z-index: 2;
+  margin: 0;
   font-family: var(--serif);
   font-optical-sizing: auto;
   font-variation-settings: "SOFT" 100, "WONK" 1;
-  font-weight: 540;
-  font-size: clamp(46px, 13vw, 92px);
-  line-height: 0.95;
-  letter-spacing: -0.025em;
-  margin: 6px 0 0;
-  text-wrap: balance;
+  font-weight: 520;
+  font-size: clamp(58px, 17.5vw, 176px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.dl-1 {
+  grid-area: l1;
+  justify-self: start;
+  margin-bottom: -0.16em;
+}
+.dl-2 {
+  grid-area: l2;
+  justify-self: end;
+  margin-top: -0.22em;
+  font-style: italic;
+  font-weight: 460;
+  color: var(--accent-text);
 }
 .stage {
   grid-area: stage;
   position: relative;
-  width: min(100%, 420px);
+  width: min(100%, 58svh, 520px);
   aspect-ratio: 1;
   justify-self: center;
-  margin: 28px 0 6px;
 }
 .hero-scroll {
   position: absolute;
@@ -191,6 +221,7 @@ button {
   margin: auto;
   width: 34%;
   height: 34%;
+  z-index: 3;
 }
 .advise {
   position: relative;
@@ -203,7 +234,7 @@ button {
   font-family: var(--serif);
   font-variation-settings: "SOFT" 100, "WONK" 0;
   font-weight: 560;
-  font-size: clamp(19px, 5.2vw, 26px);
+  font-size: clamp(18px, 5vw, 26px);
   line-height: 1.05;
   letter-spacing: -0.01em;
   box-shadow: 0 8px 18px -8px rgba(21, 32, 75, 0.55);
@@ -224,13 +255,51 @@ button {
   outline-offset: 6px;
   border-radius: 50%;
 }
-
+.caption {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+}
+.caption text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 6.6px;
+  letter-spacing: 0.06em;
+  fill: var(--ink-2);
+}
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas:
+      "eyebrow eyebrow eyebrow"
+      "l1 l1 ."
+      ". stage ."
+      ". l2 l2";
+    padding-top: 88px;
+    padding-bottom: 128px;
+  }
+  .dl {
+    font-size: clamp(88px, min(11vw, 16svh), 188px);
+  }
+  .dl-1 {
+    margin-bottom: -0.38em;
+  }
+  .dl-2 {
+    margin-top: -0.62em;
+  }
+  .stage {
+    width: min(52svh, 540px);
+  }
+}
 .prefs {
-  grid-area: prefs;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
-  margin-top: 22px;
+  margin-top: 8px;
   min-width: 0;
 }
 .pref-label {
@@ -276,20 +345,11 @@ button {
   color: var(--on-accent);
 }
 @media (min-width: 900px) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
-    grid-template-areas: "copy stage" "prefs stage";
-    column-gap: 64px;
-    align-items: end;
-  }
   .prefs {
-    align-self: start;
-    margin-top: 30px;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
   }
-  .stage {
-    margin: 0;
-  }
-  .hero .chips {
+  .prefs .chips {
     margin: 0;
     padding: 2px 0;
     flex-wrap: wrap;
@@ -1355,4 +1415,15 @@ button {
   color: var(--ink-3);
   letter-spacing: 0.02em;
   overflow-wrap: anywhere;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
 }

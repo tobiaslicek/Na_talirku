@@ -5,6 +5,7 @@ import { App } from "./App";
 import "./styles/app.css";
 
 registerSW({ immediate: true });
+history.scrollRestoration = "manual";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
