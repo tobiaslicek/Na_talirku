@@ -1,4 +1,5 @@
 import Anthropic from "npm:@anthropic-ai/sdk@1.6.0";
+import { createClient } from "npm:@supabase/supabase-js@2.119.0";
 
 const MODEL = "claude-opus-5-5";
 const MAX_IMAGES = 6;
@@ -48,6 +49,14 @@ Pravidla:
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+
+  const auth = req.headers.get("Authorization");
+  if (!auth?.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: auth } } });
+  const { data: user } = await db.auth.getUser(auth.slice(7));
+  if (!user.user) return json({ error: "unauthorized" }, 401);
+  const { data: member } = await db.from("members").select("household_id").eq("user_id", user.user.id).limit(1);
+  if (!member?.length) return json({ error: "not_a_member" }, 403);
 
   const key = Deno.env.get("ANTHROPIC_API_KEY");
   if (!key) return json({ error: "missing_api_key" }, 500);
