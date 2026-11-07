@@ -14,7 +14,7 @@ import { useCookAction } from "./useCook";
 import { ShareIcon } from "../components/ShareIcon";
 import { useShareMeal } from "./useShare";
 
-const PREFS_KEY = "talirek-prefs";
+const PREFS_KEY = "na-talirku-prefs";
 let introPlayed = false;
 
 function loadPrefs(): Prefs {
