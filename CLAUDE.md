@@ -1,4 +1,4 @@
-# Talířek
+# Na talířku
 
 Sdílená aplikace pro domácnost (já + manželka), která řeší každodenní „co si dnes dáme a co nakoupit“. Cíl: dostat se od „nevím“ k „tohle uvaříme a tohle dokoupíme“ do 30 sekund. Používá se hlavně na mobilu (PWA přidaná na plochu), ale musí fungovat i na desktopu.
 

@@ -22,7 +22,7 @@ export function Login() {
   return (
     <main className="gate">
       <HeroPlate />
-      <h1 className="title">Talířek</h1>
+      <h1 className="title">Na talířku</h1>
       {sent ? (
         <>
           <p className="sub">Odkaz pro přihlášení je na cestě do {email.trim()}. Otevři ho na tomhle zařízení.</p>

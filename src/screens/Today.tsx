@@ -5,7 +5,8 @@ import { useToast } from "../components/Toast";
 import { HeroPlate, Plate, Stitch } from "../plate/Plate";
 import { ago, list, minutes, tidy, todayLabel } from "../lib/format";
 import { MOOD_OPTIONS, TIME_OPTIONS } from "../lib/labels";
-import { gsap, motionOK, revealPlates, ScrollTrigger, stitchIn, useGSAP, withMotion } from "../lib/motion";
+import { gsap, motionOK, revealPlates, ScrollTrigger, SplitText, stitchIn, useGSAP, withMotion, wordsUp } from "../lib/motion";
+import { scrollToEl } from "../lib/smooth";
 import { recommend, type Prefs } from "../lib/recommend";
 import { useStore } from "../lib/store";
 import type { Meal } from "../lib/types";
@@ -13,7 +14,7 @@ import { useCookAction } from "./useCook";
 import { ShareIcon } from "../components/ShareIcon";
 import { useShareMeal } from "./useShare";
 
-const PREFS_KEY = "talirek-prefs";
+const PREFS_KEY = "na-talirku-prefs";
 let introPlayed = false;
 
 function loadPrefs(): Prefs {
@@ -85,7 +86,7 @@ export function Today() {
     spinNext.current = withSpin;
     const delay = withSpin && motionOK() ? 600 : 0;
     if (withSpin || first) {
-      window.setTimeout(() => suggestRef.current?.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "start" }), delay);
+      window.setTimeout(() => suggestRef.current && scrollToEl(suggestRef.current, -24), delay);
     }
   };
 
@@ -103,23 +104,46 @@ export function Today() {
     () =>
       withMotion(() => {
         const el = root.current!;
+        let intro: gsap.core.Timeline | null = null;
         if (!introPlayed) {
           const vine = el.querySelector<SVGPathElement>(".hero-spin .vine");
           const L = vine?.getTotalLength() ?? 0;
-          const tl = gsap.timeline({ defaults: { ease: "power3.out" }, onStart: () => void (introPlayed = true) });
-          tl.from(".hero .date, .hero .display", { y: 28, autoAlpha: 0, duration: 0.9, stagger: 0.08 })
-            .from(".stage", { autoAlpha: 0, scale: 0.94, duration: 1 }, 0.1)
-            .from(".hero-spin", { rotation: -160, duration: 1.7, ease: "expo.out" }, 0.1)
-            .from(".hero-spin .motif", { autoAlpha: 0, y: -5, scale: 0.6, transformOrigin: "50% 50%", duration: 0.45, stagger: 0.045 }, 0.45)
-            .from(".advise-wrap", { scale: 0.82, autoAlpha: 0, duration: 0.7, ease: "back.out(1.5)" }, 0.95)
-            .from(".prefs .pref", { y: 14, autoAlpha: 0, duration: 0.6, stagger: 0.08 }, 0.7);
-          if (vine) tl.fromTo(vine, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, 0.3);
-          gsap.from(".wreath .lf", { scale: 0.2, autoAlpha: 0, transformOrigin: "0% 50%", duration: 0.55, ease: "power3.out", stagger: { each: 0.025, from: "center" }, delay: 0.7 });
-          gsap.from(".wreath .fl", { scale: 0.2, autoAlpha: 0, transformOrigin: "50% 50%", duration: 0.6, ease: "back.out(1.8)", stagger: { each: 0.04, from: "center" }, delay: 0.85 });
+          intro = gsap.timeline({ defaults: { ease: "power3.out" }, onStart: () => void (introPlayed = true) });
+          intro
+            .from(".eyebrow > *", { y: 12, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, 0)
+            .from(".stage", { autoAlpha: 0, scale: 0.9, duration: 1.1 }, 0.15)
+            .from(".hero-spin", { rotation: -200, duration: 1.9, ease: "expo.out" }, 0.15)
+            .from(".hero-spin .motif", { autoAlpha: 0, y: -5, scale: 0.6, transformOrigin: "50% 50%", duration: 0.45, stagger: 0.04 }, 0.55)
+            .from(".caption", { rotation: -90, autoAlpha: 0, duration: 1.4, ease: "expo.out" }, 0.7)
+            .from(".advise-wrap", { scale: 0.7, autoAlpha: 0, duration: 0.8, ease: "back.out(1.6)" }, 1)
+            .from(".wreath .lf", { scale: 0.2, autoAlpha: 0, transformOrigin: "0% 50%", duration: 0.55, stagger: { each: 0.022, from: "center" } }, 0.8)
+            .from(".wreath .fl", { scale: 0.2, autoAlpha: 0, transformOrigin: "50% 50%", duration: 0.6, ease: "back.out(1.8)", stagger: { each: 0.035, from: "center" } }, 0.95)
+            .from(".prefs .pref", { y: 16, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, 1.1);
+          if (vine) intro.fromTo(vine, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: 1.5, ease: "power2.inOut" }, 0.4);
         }
-        const st = { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.6 };
-        gsap.to(".hero-scroll", { yPercent: -6, scale: 0.9, ease: "none", scrollTrigger: st });
-        gsap.to(".hero-turn", { rotation: 80, ease: "none", scrollTrigger: { ...st } });
+
+        SplitText.create(".dl", {
+          type: "words,chars",
+          aria: "none",
+          autoSplit: true,
+          onSplit: (self) => {
+            if (intro && intro.progress() < 1) {
+              gsap.from(self.words, { yPercent: 115, rotation: 6, autoAlpha: 0, duration: 1.1, ease: "expo.out", stagger: 0.09, delay: Math.max(0, 0.1 - intro.time()) });
+            }
+            const rand = gsap.utils.random;
+            return gsap
+              .timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=70%", pin: true, scrub: 0.7 } })
+              .to(self.chars, { yPercent: () => rand(-320, -140), xPercent: () => rand(-60, 60), rotation: () => rand(-40, 40), autoAlpha: 0, ease: "power2.in", stagger: { each: 0.025, from: "random" } }, 0)
+              .to(".eyebrow", { y: -24, autoAlpha: 0, ease: "none" }, 0)
+              .fromTo(".caption", { rotation: 0, scale: 1, autoAlpha: 1 }, { rotation: -120, scale: 1.12, autoAlpha: 0, ease: "power1.in", immediateRender: false }, 0)
+              .to(".hero-turn", { rotation: 140, ease: "none" }, 0)
+              .to(".wreath", { yPercent: -4, scale: 1.04, ease: "none" }, 0)
+              .to(".hero-scroll", { scale: 0.82, ease: "power1.inOut" }, 0)
+              .to(".stage", { yPercent: 24, ease: "power1.inOut" }, 0);
+          },
+        });
+
+        gsap.utils.toArray<HTMLElement>(".split-on-scroll", el).forEach((h) => wordsUp(h, { scroll: true }));
         stitchIn(el, true);
         revealPlates(gsap.utils.toArray<HTMLElement>(".forgotten .f-row", el), { x: -28, rot: -170, text: ".f-text" });
         requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -164,10 +188,14 @@ export function Today() {
   return (
     <section ref={root}>
       <header className="hero">
-        <div className="hero-copy">
-          <p className="date">{todayLabel()}</p>
-          <h1 className="display">Co si dnes dáme?</h1>
-        </div>
+        <p className="eyebrow">
+          <span>{todayLabel()}</span>
+          <span>{store.snap.household.name}</span>
+        </p>
+        <h1 className="sr-only">Co si dnes dáme?</h1>
+        <p className="dl dl-1" aria-hidden="true">
+          Co si dnes
+        </p>
         <HeroPlate>
           <div className="advise-wrap">
             <button className="advise" onClick={() => advise(true)}>
@@ -175,21 +203,25 @@ export function Today() {
             </button>
           </div>
         </HeroPlate>
-        <div className="prefs">
-          <div className="pref">
-            <span className="pref-label" id="l-time">
-              Kolik máme času
-            </span>
-            <Chips options={TIME_OPTIONS} value={prefs.time} labelledBy="l-time" onChange={(time) => setPref({ ...prefs, time })} />
-          </div>
-          <div className="pref">
-            <span className="pref-label" id="l-mood">
-              Na co je chuť
-            </span>
-            <Chips options={MOOD_OPTIONS} value={prefs.mood} labelledBy="l-mood" onChange={(mood) => setPref({ ...prefs, mood })} />
-          </div>
-        </div>
+        <p className="dl dl-2" aria-hidden="true">
+          dáme?
+        </p>
       </header>
+
+      <div className="prefs">
+        <div className="pref">
+          <span className="pref-label" id="l-time">
+            Kolik máme času
+          </span>
+          <Chips options={TIME_OPTIONS} value={prefs.time} labelledBy="l-time" onChange={(time) => setPref({ ...prefs, time })} />
+        </div>
+        <div className="pref">
+          <span className="pref-label" id="l-mood">
+            Na co je chuť
+          </span>
+          <Chips options={MOOD_OPTIONS} value={prefs.mood} labelledBy="l-mood" onChange={(mood) => setPref({ ...prefs, mood })} />
+        </div>
+      </div>
 
       <Stitch />
 
@@ -207,7 +239,7 @@ export function Today() {
 
       <section>
         <div className="sec-head">
-          <h2>Dlouho jsme neměli</h2>
+          <h2 className="split-on-scroll">Dlouho jsme neměli</h2>
         </div>
         <div className="forgotten">
           {forgotten.length ? (
@@ -228,7 +260,7 @@ export function Today() {
 
       <section>
         <div className="sec-head">
-          <h2>Dochází</h2>
+          <h2 className="split-on-scroll">Dochází</h2>
         </div>
         {low.length ? (
           <>

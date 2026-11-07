@@ -19,7 +19,9 @@ export function MealDetail({ id }: { id: string }) {
   const root = useRef<HTMLDivElement>(null);
   const meal = store.mealById(id);
 
-  useGSAP(() => withMotion(() => gsap.from(".dish.big .plate", { rotation: -140, duration: 1.1, ease: "expo.out", delay: 0.04 })), { scope: root, dependencies: [id] });
+  useGSAP(() => withMotion(() => {
+        gsap.from(".dish.big .plate", { rotation: -140, duration: 1.1, ease: "expo.out", delay: 0.04 });
+      }), { scope: root, dependencies: [id] });
 
   if (!meal) return <p className="quiet">Tohle jídlo už v katalogu není.</p>;
   const ings = store.ingredientsOf(id).slice().sort((a, b) => a.name.localeCompare(b.name, "cs"));

@@ -1,4 +1,4 @@
-# Talířek
+# Na talířku
 
 Sdílená aplikace pro domácnost: co si dnes dáme a co nakoupit. Zadání a pravidla jsou v [CLAUDE.md](CLAUDE.md), design v [design/prototype.html](design/prototype.html).
 

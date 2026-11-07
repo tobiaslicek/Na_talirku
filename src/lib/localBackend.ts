@@ -3,7 +3,7 @@ import { isoDate, startOfToday } from "./format";
 import type { Backend, Row, Table } from "./backend";
 import type { Ingredient, Snapshot, Zone } from "./types";
 
-const KEY = "talirek-demo-v1";
+const KEY = "na-talirku-demo-v1";
 export const LOCAL_USER = "00000000-0000-4000-8000-000000000001";
 
 const TABLE_KEY: Record<Table, keyof Snapshot> = {

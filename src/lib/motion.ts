@@ -1,16 +1,18 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
-export { gsap, ScrollTrigger, useGSAP };
+export { gsap, ScrollTrigger, SplitText, useGSAP };
 
 export const MOTION_OK = "(prefers-reduced-motion: no-preference)";
 
 export const motionOK = () => typeof matchMedia === "function" && matchMedia(MOTION_OK).matches;
 
-export function withMotion(setup: () => void) {
+export function withMotion(setup: () => void | (() => void)) {
   const mm = gsap.matchMedia();
   mm.add(MOTION_OK, setup);
   return () => mm.revert();
@@ -47,7 +49,27 @@ export function stitchIn(scope: HTMLElement, scrub: boolean) {
   });
 }
 
+export function wordsUp(el: Element, opts: { delay?: number; scroll?: boolean } = {}) {
+  SplitText.create(el, {
+    type: "words,lines",
+    mask: "lines",
+    aria: "auto",
+    autoSplit: true,
+    onSplit: (self) =>
+      gsap.from(self.words, {
+        yPercent: 110,
+        duration: 0.9,
+        ease: "expo.out",
+        stagger: 0.06,
+        delay: opts.delay ?? 0,
+        scrollTrigger: opts.scroll ? { trigger: el, start: "top 88%", once: true } : undefined,
+      }),
+  });
+}
+
 export function pageIntro(scope: HTMLElement) {
-  gsap.from(scope.querySelectorAll(".page-head > *"), { y: 22, autoAlpha: 0, duration: 0.75, ease: "power3.out", stagger: 0.07 });
+  const title = scope.querySelector(".page-head .title");
+  if (title) wordsUp(title);
+  gsap.from(scope.querySelectorAll(".page-head > :not(.page-head-row), .page-head-row > :not(.title)"), { y: 16, autoAlpha: 0, duration: 0.7, ease: "power3.out", stagger: 0.07, delay: 0.25 });
   stitchIn(scope, false);
 }

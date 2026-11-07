@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icon.svg", "apple-touch-icon-180x180.png"],
       manifest: {
-        name: "Talířek",
-        short_name: "Talířek",
+        name: "Na talířku",
+        short_name: "Na talířku",
         description: "Co si dnes dáme a co nakoupit.",
         lang: "cs",
         start_url: "/",

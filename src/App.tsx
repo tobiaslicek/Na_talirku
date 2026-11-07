@@ -8,6 +8,7 @@ import { supabaseBackend, type Backend } from "./lib/backend";
 import { localBackend, LOCAL_USER } from "./lib/localBackend";
 import { useRoute } from "./lib/route";
 import { StoreProvider, useStore } from "./lib/store";
+import { scrollToTop, useSmoothScroll } from "./lib/smooth";
 import { supabase } from "./lib/supabase";
 import { PlateDefs } from "./plate/Plate";
 import { Login, Onboarding } from "./screens/Gate";
@@ -29,6 +30,7 @@ function Shell() {
   const store = useStore();
   const { view, param } = useRoute();
   const [sheet, setSheet] = useState<SheetState>(null);
+  useSmoothScroll();
 
   const sheets = useMemo<Sheets>(
     () => ({
@@ -44,7 +46,7 @@ function Shell() {
 
   useLayoutEffect(() => {
     setSheet(null);
-    window.scrollTo(0, 0);
+    scrollToTop();
   }, [view]);
 
   useEffect(() => {
