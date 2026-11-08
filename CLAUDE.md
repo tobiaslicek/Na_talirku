@@ -38,12 +38,14 @@ meals             id, household_id, name, minutes, tags text[], photo_path, crea
 ingredients       id, household_id, name, zone (lednice|mrazak|spiz), state (mame|dochazi|doslo), tracked bool
 meal_ingredients  meal_id, ingredient_id
 cook_log          id, household_id, meal_id, cooked_on date, cooked_by
+idea_votes        id, household_id, idea_id, vote (ne|chceme)
 shopping_items    id, household_id, name, ingredient_id null, for_meal_id null, done bool, done_at, created_by
 ```
 
 - Tagy: `rychle`, `vikend`, `bezmasa`, `maso`, `polevka`, `sladke`.
 - RLS: každý řádek je čitelný a zapisovatelný jen pro členy dané domácnosti.
-- Realtime odběr na `shopping_items` a `ingredients`, aby oba viděli změny okamžitě (typicky v obchodě).
+- Realtime odběr na `shopping_items`, `ingredients` a `cook_log`, aby oba viděli změny okamžitě (typicky v obchodě).
+- Jídelníček nemá vlastní tabulku: je to `cook_log` s datem dnes nebo v budoucnu. Poslední vaření a historie berou jen záznamy do dneška.
 - Přihlášení: e-mail (magic link). Buď jeden společný účet, nebo dva účty v jedné domácnosti; datový model podporuje obojí.
 
 ## Doporučování (bez AI)
@@ -52,20 +54,21 @@ Pro každé jídlo:
 
 ```
 pokrytí  = počet surovin se stavem mame nebo dochazi / počet surovin
-dní      = min(dny od posledního záznamu v cook_log, 45)
+dní      = min(dny od posledního záznamu v cook_log do dneška, 45)
 skóre    = pokrytí × 55 + dní × 0,9 + náhoda(0–22)
 ```
 
 - Vyřaď jídla vařená v posledních 2 dnech.
 - Filtry: čas (do 30 min, do hodiny, je to jedno) a chuť (tag nebo cokoliv).
 - Vrať 3 jídla. „Jiné tři“ vrátí další trojici a pokud to jde, vynechá ty předchozí.
-- Hlavní smysl aplikace je objevovat i nová jídla, protože vaříme pořád dokola. Knihovna nápadů je v `src/data/ideas.ts` (vegetariánská, laděná podle našeho katalogu, každý nápad má suroviny a krátký postup). Volba „Naše, nebo nové“: Obojí = 2 naše + 1 nové, Osvědčené = 3 naše, Něco nového = 3 nápady. Skóre nápadu je v `ideaScore` (chuť × 45 + pokrytí × 35 + náhoda × 30); chuť je podíl surovin, které se vyskytují v našich jídlech.
-- „Tohle uvaříme“ u nápadu ho převezme mezi naše jídla i s postupem, „Tohle nechceme“ ho skryje pro celou domácnost (`hidden_ideas`).
+- Hlavní smysl aplikace je objevovat i nová jídla, protože vaříme pořád dokola. Knihovna nápadů je v `src/data/ideas.ts` (vegetariánská, laděná podle našeho katalogu, každý nápad má suroviny a krátký postup). Volba „Naše, nebo nové“: Obojí = 2 naše + 1 nové, Osvědčené = 3 naše, Něco nového = 3 nápady. Skóre nápadu je v `ideaScore` (chuť × 45 + pokrytí × 35 + náhoda × 30, nápad se srdíčkem +120, takže přijde na řadu jako první); chuť je podíl surovin, které se vyskytují v našich jídlech.
+- Detail nápadu má v hero srdíčko (převezme ho mezi naše jídla i s postupem, znovu klepnutí ho odebere) a palec dolů (skryje ho pro celou domácnost, `idea_votes.vote = ne`). Po srdíčku se pod popisem ukážou podobná jídla (`similar`, kosinová podobnost surovin bez základů + společné tagy). U nich srdíčko jen přidá nápad do návrhů na příště (`vote = chceme`), křížek ho skryje. Stejná řada „Podobná nová jídla“ je v detailu každého našeho jídla.
 
 ## Klíčové toky
 
 - **Dnes:** prázdný talíř s věnečkem a tlačítkem „Poraď mi“. Tlačítko roztočí talíř a ukáže 3 návrhy. U každého: čas, „naposled před…“, „Všechno máme doma“ nebo „Dokoupit: …“.
-- **Tohle uvaříme:** zapíše dnešek do `cook_log` a chybějící suroviny přidá do nákupu s odkazem na jídlo. Potvrzení přes toast.
+- **Tohle uvaříme:** zapíše vybraný den do `cook_log` a chybějící suroviny přidá do nákupu s odkazem na jídlo. Den se vybírá čipy „Na kdy“ (dnes a dalších 6 dní) na Dnes i v detailu jídla; tlačítko pak zní „Uvaříme zítra“, „Uvaříme ve středu“. Po výběru na budoucí den se Dnes posune na další volný den a nabídne nové tři. Potvrzení přes toast.
+- **Jídelníček:** na Dnes pod návrhy, 7 dní dopředu. Prázdný den má „vybrat“ (nastaví den a roztočí Poraď mi), naplánované jídlo jde zrušit křížkem; zrušení smaže i nekoupené položky nákupu, které už žádné jiné naplánované jídlo nepotřebuje. Naplánovaná jídla se nenabízejí v návrzích ani v „Dlouho jsme neměli“ a nákup u položky ukazuje, na který den je.
 - **Dlouho jsme neměli:** jídla, která nebyla 21+ dní, seřazená od nejstaršího.
 - **Dochází:** suroviny ve stavu `dochazi`, tlačítko „Přidat do nákupu“.
 - **Jídla:** mřížka talířů, filtry podle tagů, detail v bottom sheetu (suroviny se stavem, „Tohle uvaříme“, „Přidat chybějící do nákupu“). Sheet jde zavřít tažením dolů.
@@ -96,7 +99,7 @@ Top-down food photo of [jídlo a jeho složky], served on a white Czech blue oni
 
 1. Projekt, PWA, přihlášení, domácnost, jídla (přidat/upravit), katalog, Poraď mi, historie vaření, sdílený nákup s realtime.
 2. Spíž se třemi stavy a propojení nákup → spíž.
-3. AI: účtenky, volný text, generování fotek. Případně týdenní plán.
+3. AI: účtenky, volný text, generování fotek.
 
 ## Prostředí
 

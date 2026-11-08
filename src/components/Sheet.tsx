@@ -2,12 +2,13 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 interface Props {
   open: boolean;
+  contentKey?: string;
   onClose: () => void;
   labelledBy: string;
   children: ReactNode;
 }
 
-export function Sheet({ open, onClose, labelledBy, children }: Props) {
+export function Sheet({ open, onClose, labelledBy, contentKey, children }: Props) {
   const sheet = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
@@ -18,6 +19,10 @@ export function Sheet({ open, onClose, labelledBy, children }: Props) {
   useEffect(() => {
     if (open) setContent(children);
   }, [open, children]);
+
+  useEffect(() => {
+    if (body.current) body.current.scrollTop = 0;
+  }, [contentKey]);
 
   useEffect(() => {
     const el = sheet.current!;

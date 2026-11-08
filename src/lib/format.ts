@@ -56,3 +56,44 @@ export function todayLabel(now = new Date()) {
 }
 
 export const list = (items: string[]) => items.join(", ");
+
+export function addDays(iso: string, n: number) {
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return isoDate(d);
+}
+
+const ON_DAY = ["v neděli", "v pondělí", "v úterý", "ve středu", "ve čtvrtek", "v pátek", "v sobotu"];
+const FOR_DAY = ["na neděli", "na pondělí", "na úterý", "na středu", "na čtvrtek", "na pátek", "na sobotu"];
+const offset = (iso: string, now: Date) => Math.round((new Date(iso + "T00:00:00").getTime() - startOfToday(now).getTime()) / DAY);
+const weekday = (iso: string) => new Date(iso + "T00:00:00").getDay();
+
+export function onDay(iso: string, now = new Date()) {
+  const o = offset(iso, now);
+  if (o === 0) return "dnes";
+  if (o === 1) return "zítra";
+  return tidy(ON_DAY[weekday(iso)]);
+}
+
+export function forDay(iso: string, now = new Date()) {
+  const o = offset(iso, now);
+  if (o === 0) return "na dnešek";
+  if (o === 1) return "na zítra";
+  return FOR_DAY[weekday(iso)];
+}
+
+export function dayChip(iso: string, now = new Date()) {
+  const o = offset(iso, now);
+  if (o === 0) return "Dnes";
+  if (o === 1) return "Zítra";
+  const d = new Date(iso + "T00:00:00");
+  return `${cap(new Intl.DateTimeFormat("cs-CZ", { weekday: "short" }).format(d))}${NB}${d.getDate()}.`;
+}
+
+export function dayTitle(iso: string, now = new Date()) {
+  const o = offset(iso, now);
+  if (o === 0) return "Dnes";
+  if (o === 1) return "Zítra";
+  const d = new Date(iso + "T00:00:00");
+  return `${cap(new Intl.DateTimeFormat("cs-CZ", { weekday: "long" }).format(d))} ${d.getDate()}.${NB}${d.getMonth() + 1}.`;
+}

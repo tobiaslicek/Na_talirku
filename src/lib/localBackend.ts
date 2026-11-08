@@ -11,7 +11,7 @@ const TABLE_KEY: Record<Table, keyof Snapshot> = {
   ingredients: "ingredients",
   cook_log: "cookLog",
   shopping_items: "shop",
-  hidden_ideas: "hiddenIdeas",
+  idea_votes: "ideaVotes",
 };
 
 function seed(): Snapshot {
@@ -30,7 +30,7 @@ function seed(): Snapshot {
     ingredients,
     mealIngredients: [],
     cookLog: [],
-    hiddenIdeas: [],
+    ideaVotes: [],
     shop: SEED_SHOP.map((name) => ({ id: crypto.randomUUID(), household_id: hid, name, ingredient_id: null, for_meal_id: null, done: false, done_at: null, created_by: null, created_at: now })),
     photoUrls: {},
   };
@@ -55,8 +55,9 @@ function read(): Snapshot {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
-      const s = JSON.parse(raw) as Snapshot;
-      s.hiddenIdeas ??= [];
+      const s = JSON.parse(raw) as Snapshot & { hiddenIdeas?: Omit<Snapshot["ideaVotes"][number], "vote">[] };
+      s.ideaVotes ??= (s.hiddenIdeas ?? []).map((h) => ({ ...h, vote: "ne" as const }));
+      delete s.hiddenIdeas;
       return s;
     }
   } catch {

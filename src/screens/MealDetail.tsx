@@ -1,8 +1,9 @@
 import { useRef } from "react";
+import { cookLabel, DayChips, useDay } from "../components/day";
 import { useSheets } from "../components/sheets";
 import { useToast } from "../components/Toast";
 import { Plate } from "../plate/Plate";
-import { ago, cap, list, longDate, minutes, tidy } from "../lib/format";
+import { ago, cap, list, longDate, minutes, onDay, tidy } from "../lib/format";
 import { STATE_LABEL, TAG_LABEL } from "../lib/labels";
 import { gsap, useGSAP, withMotion } from "../lib/motion";
 import { useStore } from "../lib/store";
@@ -10,6 +11,7 @@ import { useCookAction } from "./useCook";
 import { ShareIcon } from "../components/ShareIcon";
 import { useShareMeal } from "./useShare";
 import { Recipe } from "./IdeaDetail";
+import { Alike } from "./Alike";
 
 export function MealDetail({ id }: { id: string }) {
   const store = useStore();
@@ -17,6 +19,7 @@ export function MealDetail({ id }: { id: string }) {
   const { close, openEdit } = useSheets();
   const cook = useCookAction();
   const share = useShareMeal();
+  const [day] = useDay();
   const root = useRef<HTMLDivElement>(null);
   const meal = store.mealById(id);
 
@@ -28,6 +31,7 @@ export function MealDetail({ id }: { id: string }) {
   const ings = store.ingredientsOf(id).slice().sort((a, b) => a.name.localeCompare(b.name, "cs"));
   const miss = store.missingOf(id);
   const history = store.historyOf(id).slice(0, 5);
+  const next = store.plannedOn(id);
 
   const buy = async () => {
     const added = await store.addMissingToShop(id);
@@ -44,6 +48,7 @@ export function MealDetail({ id }: { id: string }) {
       <p className="meta">
         {minutes(meal.minutes)}, naposled {ago(store.daysSinceCooked(id))}
       </p>
+      {next && <p className="plan-note">V plánu {onDay(next)}</p>}
       {meal.tags.length > 0 && (
         <div className="tags">
           {meal.tags.map((t) => (
@@ -69,9 +74,15 @@ export function MealDetail({ id }: { id: string }) {
         </p>
       )}
       <Recipe steps={(meal.recipe ?? "").split("\n").map((s) => s.trim()).filter(Boolean)} />
+      <div className="sheet-day">
+        <span className="pref-label" id="l-meal-day">
+          Na kdy
+        </span>
+        <DayChips labelledBy="l-meal-day" />
+      </div>
       <div className="sheet-actions">
-        <button className="btn primary" onClick={() => cook(id)}>
-          Tohle uvaříme
+        <button className="btn primary" onClick={() => cook(id, day)}>
+          {cookLabel(day)}
         </button>
         {miss.length > 0 && (
           <button className="btn ghost" onClick={buy}>
@@ -98,6 +109,7 @@ export function MealDetail({ id }: { id: string }) {
           </ul>
         </div>
       )}
+      <Alike target={{ ingredients: ings.map((i) => i.name), tags: meal.tags }} title="Podobná nová jídla" />
       <div className="sheet-foot">
         <button className="link" onClick={() => openEdit(id)}>
           Upravit jídlo

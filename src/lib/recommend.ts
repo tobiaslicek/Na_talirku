@@ -20,13 +20,37 @@ export function score(f: MealFacts, random: number) {
   return f.coverage * 55 + days * 0.9 + random * 22;
 }
 
+export const BASICS = new Set(["sůl", "pepř", "černý pepř", "cukr", "voda", "olej"]);
+
 export interface IdeaFacts {
   taste: number;
   coverage: number;
+  wanted?: boolean;
 }
 
+const WANTED_BONUS = 120;
+
 export function ideaScore(f: IdeaFacts, random: number) {
-  return f.taste * 45 + f.coverage * 35 + random * 30;
+  return f.taste * 45 + f.coverage * 35 + random * 30 + (f.wanted ? WANTED_BONUS : 0);
+}
+
+const flavour = (names: string[]) => new Set(names.map((n) => n.trim().toLowerCase()).filter((n) => !BASICS.has(n)));
+
+export function similar<T extends { id: string; ingredients: string[]; tags: Tag[] }>(target: { ingredients: string[]; tags: Tag[] }, pool: T[], count: number): T[] {
+  const a = flavour(target.ingredients);
+  const tags: Tag[] = target.tags.filter((t) => t !== "bezmasa");
+  return pool
+    .map((item) => {
+      const b = flavour(item.ingredients);
+      let shared = 0;
+      b.forEach((n) => void (a.has(n) && shared++));
+      const cosine = a.size && b.size ? shared / Math.sqrt(a.size * b.size) : 0;
+      return { item, shared, s: cosine + item.tags.filter((t) => tags.includes(t)).length * 0.08 };
+    })
+    .filter((x) => x.shared > 0)
+    .sort((x, y) => y.s - x.s)
+    .slice(0, count)
+    .map((x) => x.item);
 }
 
 export function recommendIdeas<T extends { id: string; minutes: number; tags: Tag[] }>(

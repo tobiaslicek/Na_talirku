@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useToast } from "../components/Toast";
 import { Stitch } from "../plate/Plate";
-import { cap, tidy } from "../lib/format";
+import { cap, forDay, tidy } from "../lib/format";
 import { pageIntro, useGSAP, withMotion } from "../lib/motion";
 import { useStore } from "../lib/store";
 import { ShareIcon } from "../components/ShareIcon";
@@ -57,12 +57,13 @@ export function Shop() {
         {items.length ? (
           items.map((it) => {
             const meal = it.for_meal_id ? store.mealById(it.for_meal_id) : undefined;
+            const when = meal ? store.plannedOn(meal.id) : null;
             return (
               <li key={it.id} className="shop-item">
                 <label>
                   <input className="check" type="checkbox" checked={it.done} onChange={(e) => toggle(it.id, e.target.checked)} />
                   <span className="shop-name">{it.name}</span>
-                  {meal && <small className="shop-for">{tidy(meal.name)}</small>}
+                  {meal && <small className="shop-for">{tidy(meal.name)}{when && `, ${forDay(when)}`}</small>}
                 </label>
               </li>
             );

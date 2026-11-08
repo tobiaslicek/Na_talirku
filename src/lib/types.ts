@@ -63,10 +63,13 @@ export interface ShoppingItem {
   created_at: string;
 }
 
-export interface HiddenIdea {
+export type Vote = "ne" | "chceme";
+
+export interface IdeaVote {
   id: string;
   household_id: string;
   idea_id: string;
+  vote: Vote;
   created_at: string;
 }
 
@@ -78,6 +81,6 @@ export interface Snapshot {
   mealIngredients: MealIngredient[];
   cookLog: CookLog[];
   shop: ShoppingItem[];
-  hiddenIdeas: HiddenIdea[];
+  ideaVotes: IdeaVote[];
   photoUrls: Record<string, string>;
 }

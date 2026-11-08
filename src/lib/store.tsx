@@ -2,17 +2,18 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer,
 import { IDEAS, type Idea } from "../data/ideas";
 import type { Backend, Change, Row, Table } from "./backend";
 import { zoneFor } from "./receipt";
+import { BASICS, similar } from "./recommend";
 import { daysSince, isoDate } from "./format";
-import type { CookLog, Ingredient, IngredientState, Meal, ShoppingItem, Snapshot, Tag, Zone } from "./types";
+import type { CookLog, IdeaVote, Ingredient, IngredientState, Meal, ShoppingItem, Snapshot, Tag, Vote, Zone } from "./types";
 
 type Action = { type: "replace"; snap: Snapshot } | { type: "change"; change: Change } | { type: "mealIngredients"; mealId: string; ids: string[] };
 
-const KEYS: Record<Table, "meals" | "ingredients" | "cookLog" | "shop" | "hiddenIdeas"> = {
+const KEYS: Record<Table, "meals" | "ingredients" | "cookLog" | "shop" | "ideaVotes"> = {
   meals: "meals",
   ingredients: "ingredients",
   cook_log: "cookLog",
   shopping_items: "shop",
-  hidden_ideas: "hiddenIdeas",
+  idea_votes: "ideaVotes",
 };
 
 function reducer(s: Snapshot | null, a: Action): Snapshot | null {
@@ -56,6 +57,7 @@ export interface IdeaInfo {
   taste: number;
   coverage: number;
   missing: string[];
+  wanted: boolean;
 }
 
 export interface StockRow {
@@ -81,7 +83,10 @@ export interface Store {
   historyOf: (mealId: string) => CookLog[];
   mealById: (id: string) => Meal | undefined;
   openShop: ShoppingItem[];
-  cook: (mealId: string) => Promise<string[]>;
+  plan: CookLog[];
+  plannedOn: (mealId: string) => string | null;
+  cook: (mealId: string, day?: string) => Promise<string[]>;
+  unplan: (cookId: string) => Promise<string[]>;
   addMissingToShop: (mealId: string) => Promise<string[]>;
   addLowToShop: () => Promise<string[]>;
   addShopItem: (name: string) => Promise<boolean>;
@@ -100,8 +105,11 @@ export interface Store {
   ideas: Idea[];
   ideaInfo: (idea: Idea) => IdeaInfo;
   stateOf: (name: string) => IngredientState | null;
-  hideIdea: (id: string) => Promise<void>;
-  adoptIdea: (idea: Idea, cookNow: boolean) => Promise<{ mealId: string; added: string[] }>;
+  isWanted: (ideaId: string) => boolean;
+  voteIdea: (ideaId: string, vote: Vote | null) => Promise<void>;
+  similarIdeas: (target: { id?: string; ingredients: string[]; tags: Tag[] }, count: number) => Idea[];
+  adoptedMeal: (idea: Idea) => Meal | undefined;
+  adoptIdea: (idea: Idea, day: string | null) => Promise<{ mealId: string; added: string[] }>;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -114,7 +122,6 @@ export function useStore() {
 
 const NEXT_STATE: Record<IngredientState, IngredientState> = { mame: "dochazi", dochazi: "doslo", doslo: "mame" };
 export const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
-const BASICS = new Set(["sůl", "pepř", "černý pepř", "cukr", "voda", "olej"]);
 
 export function StoreProvider({ backend, userId, onError, fallback, children }: { backend: Backend; userId: string | null; onError: (e: unknown) => void; fallback: ReactNode; children: ReactNode }) {
   const [snap, dispatch] = useReducer(reducer, null);
@@ -148,9 +155,18 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
 
   const derived = useMemo(() => {
     if (!snap) return null;
+    const today = isoDate(new Date());
     const last = new Map<string, string>();
     const history = new Map<string, CookLog[]>();
+    const plan: CookLog[] = [];
+    const nextPlan = new Map<string, string>();
     for (const c of snap.cookLog) {
+      if (c.cooked_on >= today) {
+        plan.push(c);
+        const n = nextPlan.get(c.meal_id);
+        if (!n || c.cooked_on < n) nextPlan.set(c.meal_id, c.cooked_on);
+      }
+      if (c.cooked_on > today) continue;
       const cur = last.get(c.meal_id);
       if (!cur || c.cooked_on > cur) last.set(c.meal_id, c.cooked_on);
       const h = history.get(c.meal_id) ?? [];
@@ -158,6 +174,7 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
       history.set(c.meal_id, h);
     }
     history.forEach((h) => h.sort((a, b) => b.cooked_on.localeCompare(a.cooked_on)));
+    plan.sort((a, b) => a.cooked_on.localeCompare(b.cooked_on));
     const ingById = new Map(snap.ingredients.map((i) => [i.id, i]));
     const ings = new Map<string, Ingredient[]>();
     for (const mi of snap.mealIngredients) {
@@ -174,10 +191,10 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
       const i = ingById.get(mi.ingredient_id);
       if (i) liked.add(norm(i.name));
     }
-    const hidden = new Set(snap.hiddenIdeas.map((h) => h.idea_id));
-    const ownNames = new Set(snap.meals.map((m) => norm(m.name)));
-    const ideas = IDEAS.filter((i) => !hidden.has(i.id) && !ownNames.has(norm(i.name)));
-    return { last, history, ings, mealById, ingByName, liked, ideas, openShop: snap.shop.filter((x) => !x.done) };
+    const votes = new Map(snap.ideaVotes.map((v) => [v.idea_id, v]));
+    const mealByName = new Map(snap.meals.map((m) => [norm(m.name), m]));
+    const ideas = IDEAS.filter((i) => votes.get(i.id)?.vote !== "ne" && !mealByName.has(norm(i.name)));
+    return { today, last, history, plan, nextPlan, ings, mealById, mealByName, ingByName, liked, votes, ideas, openShop: snap.shop.filter((x) => !x.done) };
   }, [snap]);
 
   const store = useMemo<Store | null>(() => {
@@ -236,16 +253,31 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
       historyOf: (id) => derived.history.get(id) ?? [],
       mealById: (id) => derived.mealById.get(id),
       openShop: derived.openShop,
+      plan: derived.plan,
+      plannedOn: (id) => derived.nextPlan.get(id) ?? null,
 
-      async cook(mealId) {
+      async cook(mealId, day = isoDate(new Date())) {
         const miss = missingOf(mealId);
         let added: string[] = [];
         await run(async () => {
-          const row: CookLog = { id: crypto.randomUUID(), household_id: hid, meal_id: mealId, cooked_on: isoDate(new Date()), cooked_by: userId };
+          const row: CookLog = { id: crypto.randomUUID(), household_id: hid, meal_id: mealId, cooked_on: day, cooked_by: userId };
           await insert("cook_log", [row as unknown as Row]);
           added = await addIngredientsToShop(miss, mealId);
         });
         return added;
+      },
+
+      async unplan(cookId) {
+        const entry = snap.cookLog.find((c) => c.id === cookId);
+        if (!entry) return [];
+        const others = snap.cookLog.filter((c) => c.id !== cookId && c.cooked_on >= derived.today);
+        const needed = new Set(others.flatMap((c) => ingredientsOf(c.meal_id).map((i) => i.id)));
+        const drop = snap.shop.filter((x) => !x.done && x.for_meal_id === entry.meal_id && !(x.ingredient_id && needed.has(x.ingredient_id)));
+        await run(async () => {
+          await remove("cook_log", [cookId]);
+          await remove("shopping_items", drop.map((x) => x.id));
+        });
+        return drop.map((x) => x.name);
       },
 
       async addMissingToShop(mealId) {
@@ -389,15 +421,27 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
           taste: flavour.length ? flavour.filter((n) => derived.liked.has(n)).length / flavour.length : 0,
           coverage: names.length ? (names.length - missing.length) / names.length : 1,
           missing,
+          wanted: derived.votes.get(idea.id)?.vote === "chceme",
         };
       },
 
-      async hideIdea(ideaId) {
-        if (snap.hiddenIdeas.some((h) => h.idea_id === ideaId)) return;
-        await run(() => insert("hidden_ideas", [{ id: crypto.randomUUID(), household_id: hid, idea_id: ideaId, created_at: now() }]));
+      isWanted: (ideaId) => derived.votes.get(ideaId)?.vote === "chceme",
+
+      async voteIdea(ideaId, vote) {
+        const cur = (snapRef.current ?? snap).ideaVotes.find((v) => v.idea_id === ideaId);
+        await run(async () => {
+          if (!vote) return void (cur && (await remove("idea_votes", [cur.id])));
+          if (cur) return void (cur.vote !== vote && (await update("idea_votes", cur.id, { vote })));
+          const row: IdeaVote = { id: crypto.randomUUID(), household_id: hid, idea_id: ideaId, vote, created_at: now() };
+          await insert("idea_votes", [row as unknown as Row]);
+        });
       },
 
-      async adoptIdea(idea, cookNow) {
+      similarIdeas: (target, count) => similar(target, derived.ideas.filter((i) => i.id !== target.id), count),
+
+      adoptedMeal: (idea) => derived.mealByName.get(norm(idea.name)),
+
+      async adoptIdea(idea, day) {
         const mealId = crypto.randomUUID();
         let added: string[] = [];
         await run(async () => {
@@ -423,8 +467,8 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
           await insert("meals", [meal as unknown as Row]);
           dispatch({ type: "mealIngredients", mealId, ids });
           await backend.setMealIngredients(mealId, ids);
-          if (cookNow) {
-            const row: CookLog = { id: crypto.randomUUID(), household_id: hid, meal_id: mealId, cooked_on: isoDate(new Date()), cooked_by: userId };
+          if (day) {
+            const row: CookLog = { id: crypto.randomUUID(), household_id: hid, meal_id: mealId, cooked_on: day, cooked_by: userId };
             await insert("cook_log", [row as unknown as Row]);
             added = await addIngredientsToShop(toBuy, mealId);
           }

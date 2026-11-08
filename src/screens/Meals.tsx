@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Chips } from "../components/Chips";
 import { useSheets } from "../components/sheets";
 import { Plate, Stitch } from "../plate/Plate";
+import { HeartIcon } from "../components/VoteIcons";
 import { ago, minutes, plural, tidy } from "../lib/format";
 import { FILTER_OPTIONS } from "../lib/labels";
 import { gsap, pageIntro, revealPlates, ScrollTrigger, useGSAP, withMotion } from "../lib/motion";
@@ -21,9 +22,8 @@ export function Meals() {
   const meals = store.snap.meals.filter((m) => shown === "all" || m.tags.includes(shown)).sort((a, b) => a.name.localeCompare(b.name, "cs"));
   const ideas = store.ideas
     .filter((i) => shown === "all" || i.tags.includes(shown))
-    .map((i) => ({ i, taste: store.ideaInfo(i).taste }))
-    .sort((a, b) => b.taste - a.taste || a.i.name.localeCompare(b.i.name, "cs"))
-    .map((x) => x.i);
+    .map((i) => ({ i, ...store.ideaInfo(i) }))
+    .sort((a, b) => Number(b.wanted) - Number(a.wanted) || b.taste - a.taste || a.i.name.localeCompare(b.i.name, "cs"));
   const c = meals.length;
   const word = plural(c, "jídlo", "jídla", "jídel");
 
@@ -94,13 +94,21 @@ export function Meals() {
           <div className="sec-head">
             <h2>Nápady na nová jídla</h2>
           </div>
-          <p className="sub">Vybrané podle toho, co vaříte. Co vás neláká, v detailu skryjete.</p>
+          <p className="sub">Vybrané podle toho, co vaříte. V detailu dáte srdíčko, nebo palec dolů.</p>
           <div className="grid">
-            {ideas.map((i) => (
+            {ideas.map(({ i, wanted }) => (
               <button key={i.id} className="m-card" onClick={() => openIdea(i.id)}>
                 <Plate meal={{ id: i.id, name: i.name }} />
                 <span className="m-text">
-                  <span className="new-badge">nové</span>
+                  <span className="new-badge">
+                    {wanted ? (
+                      <>
+                        <HeartIcon filled size={12} /> chcete zkusit
+                      </>
+                    ) : (
+                      "nové"
+                    )}
+                  </span>
                   <span className="m-name">{tidy(i.name)}</span>
                   <span className="m-sub">{minutes(i.minutes)}</span>
                 </span>

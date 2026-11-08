@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { recommend, recommendIdeas, score } from "./recommend";
-import { ago, minutes, tidy, NB } from "./format";
+import { ideaScore, recommend, recommendIdeas, score, similar } from "./recommend";
+import { addDays, ago, dayChip, forDay, minutes, onDay, tidy, NB } from "./format";
 import type { Meal, Tag } from "./types";
 
 const meal = (id: string, mins: number, tags: Tag[] = []): Meal => ({ id, household_id: "h", name: id, minutes: mins, tags, photo_path: null, created_at: "" });
@@ -68,5 +68,43 @@ describe("recommendIdeas", () => {
   it("skips previous picks when enough remain and returns nothing for zero", () => {
     expect(recommendIdeas(ideas, facts, { time: 999, mood: "any" }, ["d"], 2, () => 0).map((i) => i.id)).toEqual(["a", "b"]);
     expect(recommendIdeas(ideas, facts, { time: 999, mood: "any" }, [], 0)).toEqual([]);
+  });
+});
+
+describe("similar", () => {
+  const idea = (id: string, ingredients: string[], tags: Tag[] = []) => ({ id, ingredients, tags });
+  const pool = [
+    idea("pesto", ["špagety", "bazalka", "parmazán", "olivový olej"]),
+    idea("kari", ["cizrna", "kokosové mléko", "rýže", "sůl"]),
+    idea("arrabbiata", ["špagety", "česnek", "chilli", "loupaná rajčata", "parmazán"]),
+    idea("polevka", ["brambory", "mrkev", "sůl"], ["polevka"]),
+  ];
+
+  it("ranks by shared ingredients and ignores basics", () => {
+    const out = similar({ ingredients: ["špagety", "parmazán", "česnek", "chilli", "sůl"], tags: [] }, pool, 3);
+    expect(out.map((i) => i.id)).toEqual(["arrabbiata", "pesto"]);
+  });
+
+  it("returns nothing when only basics match", () => {
+    expect(similar({ ingredients: ["sůl", "voda"], tags: ["polevka"] }, pool, 3)).toEqual([]);
+  });
+});
+
+describe("ideaScore", () => {
+  it("puts wanted ideas ahead", () => {
+    expect(ideaScore({ taste: 0, coverage: 0, wanted: true }, 0)).toBeGreaterThan(ideaScore({ taste: 1, coverage: 0.4, wanted: false }, 1));
+  });
+});
+
+describe("days", () => {
+  const now = new Date("2026-11-08T10:00:00");
+  it("names upcoming days", () => {
+    expect(onDay("2026-11-08", now)).toBe("dnes");
+    expect(onDay("2026-11-09", now)).toBe("zítra");
+    expect(onDay("2026-11-11", now)).toBe("ve středu");
+    expect(onDay("2026-11-10", now)).toBe(`v${NB}úterý`);
+    expect(forDay("2026-11-13", now)).toBe("na pátek");
+    expect(dayChip("2026-11-11", now)).toBe(`St${NB}11.`);
+    expect(addDays("2026-11-30", 1)).toBe("2026-12-01");
   });
 });

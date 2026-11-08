@@ -1,19 +1,21 @@
 import { useRef, useState } from "react";
 import { Chips } from "../components/Chips";
+import { cookLabel, DayChips, isToday, nextDays, useDay } from "../components/day";
 import { useSheets } from "../components/sheets";
 import { useToast } from "../components/Toast";
 import { HeroPlate, Plate, Stitch } from "../plate/Plate";
-import { ago, list, minutes, tidy, todayLabel } from "../lib/format";
+import { ago, dayTitle, forDay, list, minutes, onDay, tidy, todayLabel } from "../lib/format";
 import { MOOD_OPTIONS, SOURCE_OPTIONS, TIME_OPTIONS, type Source } from "../lib/labels";
 import { gsap, motionOK, revealPlates, ScrollTrigger, SplitText, stitchIn, useGSAP, withMotion, wordsUp } from "../lib/motion";
 import { scrollToEl } from "../lib/smooth";
 import { recommend, recommendIdeas, type Prefs } from "../lib/recommend";
 import { ideaById, type Idea } from "../data/ideas";
 import { useIdeaActions } from "./useIdeaActions";
-import { norm, useStore } from "../lib/store";
+import { useStore } from "../lib/store";
 import type { Meal } from "../lib/types";
 import { useCookAction } from "./useCook";
 import { ShareIcon } from "../components/ShareIcon";
+import { CrossIcon, HeartIcon } from "../components/VoteIcons";
 import { useShareMeal } from "./useShare";
 
 const PREFS_KEY = "na-talirku-prefs";
@@ -32,18 +34,31 @@ function loadPrefs(): TodayPrefs {
   return { time: 999, mood: "any", source: "mix" };
 }
 
-function IdeaCard({ idea }: { idea: Idea }) {
+interface CardProps {
+  day: string;
+  onPlanned: (day: string) => void;
+}
+
+function IdeaCard({ idea, day, onPlanned }: CardProps & { idea: Idea }) {
   const store = useStore();
   const { openIdea } = useSheets();
   const { cookIdea } = useIdeaActions();
-  const miss = store.ideaInfo(idea).missing;
+  const { missing: miss, wanted } = store.ideaInfo(idea);
   return (
     <article className="s-card">
       <button className="dish-btn" onClick={() => openIdea(idea.id)} aria-label={`Recept: ${idea.name}`}>
         <Plate meal={{ id: idea.id, name: idea.name }} />
       </button>
       <div className="s-body">
-        <p className="new-badge">nové jídlo</p>
+        <p className="new-badge">
+          {wanted ? (
+            <>
+              <HeartIcon filled size={12} /> chcete zkusit
+            </>
+          ) : (
+            "nové jídlo"
+          )}
+        </p>
         <h3 className="s-name">{tidy(idea.name)}</h3>
         <p className="s-meta">
           {minutes(idea.minutes)}, {tidy(idea.about.charAt(0).toLowerCase() + idea.about.slice(1))}
@@ -58,8 +73,8 @@ function IdeaCard({ idea }: { idea: Idea }) {
           )}
         </p>
         <div className="s-actions">
-          <button className="btn primary" onClick={() => cookIdea(idea)}>
-            Tohle uvaříme
+          <button className="btn primary" onClick={() => cookIdea(idea, day).then(() => onPlanned(day))}>
+            {cookLabel(day)}
           </button>
           <button className="btn ghost" onClick={() => openIdea(idea.id)}>
             Recept
@@ -70,7 +85,7 @@ function IdeaCard({ idea }: { idea: Idea }) {
   );
 }
 
-function SuggestCard({ meal }: { meal: Meal }) {
+function SuggestCard({ meal, day, onPlanned }: CardProps & { meal: Meal }) {
   const store = useStore();
   const { openMeal } = useSheets();
   const cook = useCookAction();
@@ -96,8 +111,8 @@ function SuggestCard({ meal }: { meal: Meal }) {
           )}
         </p>
         <div className="s-actions">
-          <button className="btn primary" onClick={() => cook(meal.id)}>
-            Tohle uvaříme
+          <button className="btn primary" onClick={() => cook(meal.id, day).then(() => onPlanned(day))}>
+            {cookLabel(day)}
           </button>
           <button className="btn ghost icon" onClick={() => share(meal.id)} aria-label={`Poslat ${meal.name} ve zprávě`}>
             <ShareIcon />
@@ -118,6 +133,9 @@ export function Today() {
   const [picks, setPicks] = useState<Pick[] | null>(null);
   const spinNext = useRef(false);
   const [round, setRound] = useState(0);
+  const [day, setDay] = useDay();
+  const planned = new Set(store.plan.map((c) => c.meal_id));
+  const plannedDays = new Set(store.plan.map((c) => c.cooked_on));
 
   const usedTags = new Set([...store.snap.meals, ...(prefs.source === "nase" ? [] : store.ideas)].flatMap((m) => m.tags));
   const moodOptions = MOOD_OPTIONS.filter(([k]) => k === "any" || usedTags.has(k));
@@ -128,7 +146,8 @@ export function Today() {
   const advise = (withSpin: boolean, nextPrefs = active) => {
     const prev = picks ?? [];
     const wantMeals = nextPrefs.source === "nove" ? 0 : nextPrefs.source === "nase" ? 3 : 2;
-    const meals = wantMeals ? recommend(store.snap.meals, facts, nextPrefs, prev.filter((p) => p.kind === "meal").map((p) => p.id)).slice(0, wantMeals) : [];
+    const pool = store.snap.meals.filter((m) => !planned.has(m.id));
+    const meals = wantMeals ? recommend(pool, facts, nextPrefs, prev.filter((p) => p.kind === "meal").map((p) => p.id)).slice(0, wantMeals) : [];
     const wantIdeas = nextPrefs.source === "nase" ? 0 : 3 - meals.length;
     const ideas = recommendIdeas(store.ideas, store.ideaInfo, nextPrefs, prev.filter((p) => p.kind === "idea").map((p) => p.id), wantIdeas);
     const next: Pick[] = [...meals.map((m) => ({ kind: "meal" as const, id: m.id })), ...ideas.map((i) => ({ kind: "idea" as const, id: i.id }))];
@@ -150,6 +169,22 @@ export function Today() {
       /* empty */
     }
     if (picks !== null) advise(false, p);
+  };
+
+  const changeDay = (d: string, spin = false) => {
+    setDay(d);
+    if (spin || picks !== null) advise(spin);
+  };
+
+  const onPlanned = (d: string) => {
+    if (isToday(d)) return;
+    const next = nextDays().find((x) => x > d && !plannedDays.has(x));
+    if (next) changeDay(next);
+  };
+
+  const unplan = async (cookId: string) => {
+    const removed = await store.unplan(cookId);
+    toast(removed.length ? `Zrušeno. Z nákupu zmizelo: ${list(removed)}.` : "Zrušeno.");
   };
 
   useGSAP(
@@ -198,6 +233,7 @@ export function Today() {
         gsap.utils.toArray<HTMLElement>(".split-on-scroll", el).forEach((h) => wordsUp(h, { scroll: true }));
         stitchIn(el, true);
         revealPlates(gsap.utils.toArray<HTMLElement>(".forgotten .f-row", el), { x: -28, rot: -170, text: ".f-text" });
+        revealPlates(gsap.utils.toArray<HTMLElement>(".plan-meal", el), { x: -28, rot: -170, text: ".plan-name" });
         requestAnimationFrame(() => ScrollTrigger.refresh());
       }),
     { scope: root },
@@ -227,15 +263,16 @@ export function Today() {
   const shown = (picks ?? []).flatMap((p) => {
     if (p.kind === "meal") {
       const m = store.mealById(p.id);
-      return m ? [<SuggestCard key={`${round}-${p.id}`} meal={m} />] : [];
+      return m ? [<SuggestCard key={`${round}-${p.id}`} meal={m} day={day} onPlanned={onPlanned} />] : [];
     }
     const idea = ideaById.get(p.id);
     if (!idea) return [];
-    if (store.ideas.includes(idea)) return [<IdeaCard key={`${round}-${p.id}`} idea={idea} />];
-    const adopted = store.snap.meals.find((m) => norm(m.name) === norm(idea.name));
-    return adopted ? [<SuggestCard key={`${round}-${p.id}`} meal={adopted} />] : [];
+    if (store.ideas.includes(idea)) return [<IdeaCard key={`${round}-${p.id}`} idea={idea} day={day} onPlanned={onPlanned} />];
+    const adopted = store.adoptedMeal(idea);
+    return adopted ? [<SuggestCard key={`${round}-${p.id}`} meal={adopted} day={day} onPlanned={onPlanned} />] : [];
   });
   const forgotten = store.snap.meals
+    .filter((m) => !planned.has(m.id))
     .map((m) => ({ m, d: store.daysSinceCooked(m.id) }))
     .filter((x) => x.d === null || x.d >= 21)
     .sort((a, b) => (b.d ?? Infinity) - (a.d ?? Infinity))
@@ -272,6 +309,12 @@ export function Today() {
 
       <div className="prefs">
         <div className="pref">
+          <span className="pref-label" id="l-day">
+            Na kdy
+          </span>
+          <DayChips labelledBy="l-day" onChange={(d) => changeDay(d)} />
+        </div>
+        <div className="pref">
           <span className="pref-label" id="l-time">
             Kolik máme času
           </span>
@@ -295,7 +338,7 @@ export function Today() {
 
       <section ref={suggestRef} className="suggest" hidden={picks === null} aria-live="polite">
         <div className="sec-head">
-          <h2>Tohle by dnes šlo</h2>
+          <h2>{isToday(day) ? "Tohle by dnes šlo" : `Tohle by šlo ${onDay(day)}`}</h2>
           <button className="link" onClick={() => advise(false)}>
             Jiné tři
           </button>
@@ -303,6 +346,44 @@ export function Today() {
         <div className="suggest-track">
           {shown.length ? shown : <p className="quiet">Na tohle teď nic nemáme. Zkus jiný čas nebo chuť.</p>}
         </div>
+      </section>
+
+      <section>
+        <div className="sec-head">
+          <h2 className="split-on-scroll">Jídelníček</h2>
+        </div>
+        <ul className="plan-list">
+          {nextDays().map((d) => {
+            const entries = store.plan.filter((c) => c.cooked_on === d);
+            return (
+              <li key={d} className="plan-day" data-empty={!entries.length || undefined}>
+                <div className="plan-head">
+                  <span className="plan-when">{dayTitle(d)}</span>
+                  {!entries.length && (
+                    <button className="link" onClick={() => changeDay(d, true)} aria-label={`Vybrat jídlo ${forDay(d)}`}>
+                      vybrat
+                    </button>
+                  )}
+                </div>
+                {entries.map((c) => {
+                  const m = store.mealById(c.meal_id);
+                  if (!m) return null;
+                  return (
+                    <div key={c.id} className="plan-meal">
+                      <button className="plan-open" onClick={() => openMeal(m.id)}>
+                        <Plate meal={m} photoUrl={store.snap.photoUrls[m.id]} size="sm" />
+                        <span className="plan-name">{tidy(m.name)}</span>
+                      </button>
+                      <button className="vote-sm" onClick={() => unplan(c.id)} aria-label={`Zrušit ${m.name} ${forDay(d)}`}>
+                        <CrossIcon />
+                      </button>
+                    </div>
+                  );
+                })}
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <section>

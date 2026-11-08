@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Sheet } from "./components/Sheet";
+import { DayProvider } from "./components/day";
 import { SheetsCtx, type SheetState, type Sheets } from "./components/sheets";
 import { TabBar } from "./components/TabBar";
 import { ToastProvider, useToast } from "./components/Toast";
@@ -60,6 +61,8 @@ function Shell() {
   const me = store.snap.members.find((m) => m.user_id === store.userId);
   const initial = (me?.display_name || store.snap.household.name || "?").charAt(0).toUpperCase();
 
+  const sheetKey = sheet ? `${sheet.kind}:${"id" in sheet ? sheet.id ?? "" : ""}` : "";
+
   return (
     <SheetsCtx.Provider value={sheets}>
       <button className="home-btn" onClick={sheets.openHome} aria-label="Domácnost">
@@ -72,7 +75,7 @@ function Shell() {
         {view === "nakup" && <Shop key="nakup" />}
       </main>
       <TabBar view={view} badge={store.openShop.length} />
-      <Sheet open={sheet !== null} onClose={sheets.close} labelledBy="sheet-title">
+      <Sheet open={sheet !== null} onClose={sheets.close} labelledBy="sheet-title" contentKey={sheetKey}>
         {sheet?.kind === "meal" && <MealDetail key={sheet.id} id={sheet.id} />}
         {sheet?.kind === "idea" && <IdeaDetail key={sheet.id} id={sheet.id} />}
         {sheet?.kind === "edit" && <MealForm key={sheet.id ?? "new"} id={sheet.id} />}
@@ -95,7 +98,9 @@ function Household({ backend, userId }: { backend: Backend; userId: string | nul
   );
   return (
     <StoreProvider backend={backend} userId={userId} onError={onError} fallback={<Loading />}>
-      <Shell />
+      <DayProvider>
+        <Shell />
+      </DayProvider>
     </StoreProvider>
   );
 }
