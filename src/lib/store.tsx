@@ -1,15 +1,18 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
+import { IDEAS, type Idea } from "../data/ideas";
 import type { Backend, Change, Row, Table } from "./backend";
+import { zoneFor } from "./receipt";
 import { daysSince, isoDate } from "./format";
 import type { CookLog, Ingredient, IngredientState, Meal, ShoppingItem, Snapshot, Tag, Zone } from "./types";
 
 type Action = { type: "replace"; snap: Snapshot } | { type: "change"; change: Change } | { type: "mealIngredients"; mealId: string; ids: string[] };
 
-const KEYS: Record<Table, "meals" | "ingredients" | "cookLog" | "shop"> = {
+const KEYS: Record<Table, "meals" | "ingredients" | "cookLog" | "shop" | "hiddenIdeas"> = {
   meals: "meals",
   ingredients: "ingredients",
   cook_log: "cookLog",
   shopping_items: "shop",
+  hidden_ideas: "hiddenIdeas",
 };
 
 function reducer(s: Snapshot | null, a: Action): Snapshot | null {
@@ -45,7 +48,14 @@ export interface MealInput {
   name: string;
   minutes: number;
   tags: Tag[];
+  recipe?: string | null;
   ingredientNames: string[];
+}
+
+export interface IdeaInfo {
+  taste: number;
+  coverage: number;
+  missing: string[];
 }
 
 export interface StockRow {
@@ -87,6 +97,11 @@ export interface Store {
   updateIngredient: (id: string, patch: Partial<Pick<Ingredient, "name" | "zone" | "state" | "tracked">>) => Promise<boolean>;
   removeIngredient: (id: string) => Promise<void>;
   stockPantry: (rows: StockRow[]) => Promise<StockResult>;
+  ideas: Idea[];
+  ideaInfo: (idea: Idea) => IdeaInfo;
+  stateOf: (name: string) => IngredientState | null;
+  hideIdea: (id: string) => Promise<void>;
+  adoptIdea: (idea: Idea, cookNow: boolean) => Promise<{ mealId: string; added: string[] }>;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -99,6 +114,7 @@ export function useStore() {
 
 const NEXT_STATE: Record<IngredientState, IngredientState> = { mame: "dochazi", dochazi: "doslo", doslo: "mame" };
 export const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+const BASICS = new Set(["sůl", "pepř", "černý pepř", "cukr", "voda", "olej"]);
 
 export function StoreProvider({ backend, userId, onError, fallback, children }: { backend: Backend; userId: string | null; onError: (e: unknown) => void; fallback: ReactNode; children: ReactNode }) {
   const [snap, dispatch] = useReducer(reducer, null);
@@ -152,7 +168,16 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
       ings.set(mi.meal_id, arr);
     }
     const mealById = new Map(snap.meals.map((m) => [m.id, m]));
-    return { last, history, ings, mealById, openShop: snap.shop.filter((x) => !x.done) };
+    const ingByName = new Map(snap.ingredients.map((i) => [norm(i.name), i]));
+    const liked = new Set<string>();
+    for (const mi of snap.mealIngredients) {
+      const i = ingById.get(mi.ingredient_id);
+      if (i) liked.add(norm(i.name));
+    }
+    const hidden = new Set(snap.hiddenIdeas.map((h) => h.idea_id));
+    const ownNames = new Set(snap.meals.map((m) => norm(m.name)));
+    const ideas = IDEAS.filter((i) => !hidden.has(i.id) && !ownNames.has(norm(i.name)));
+    return { last, history, ings, mealById, ingByName, liked, ideas, openShop: snap.shop.filter((x) => !x.done) };
   }, [snap]);
 
   const store = useMemo<Store | null>(() => {
@@ -288,7 +313,8 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
             ids.push(ing.id);
           }
           await insert("ingredients", fresh as unknown as Row[]);
-          const fields = { name: input.name.trim(), minutes: input.minutes, tags: input.tags };
+          const fields: Record<string, unknown> = { name: input.name.trim(), minutes: input.minutes, tags: input.tags };
+          if (input.recipe !== undefined) fields.recipe = input.recipe?.trim() || null;
           if (input.id) await update("meals", id, fields);
           else await insert("meals", [{ id, household_id: hid, photo_path: null, created_at: now(), ...fields } as unknown as Row]);
           dispatch({ type: "mealIngredients", mealId: id, ids });
@@ -342,6 +368,68 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
       async removeIngredient(id) {
         const used = snap.mealIngredients.some((x) => x.ingredient_id === id);
         await run(() => (used ? update("ingredients", id, { tracked: false }) : remove("ingredients", [id])));
+      },
+
+      ideas: derived.ideas,
+
+      stateOf(name) {
+        const n = norm(name);
+        if (BASICS.has(n)) return "mame";
+        return derived.ingByName.get(n)?.state ?? null;
+      },
+
+      ideaInfo(idea) {
+        const names = idea.ingredients.map(norm);
+        const flavour = names.filter((n) => !BASICS.has(n));
+        const missing = flavour.filter((n) => {
+          const st = derived.ingByName.get(n)?.state;
+          return !st || st === "doslo";
+        });
+        return {
+          taste: flavour.length ? flavour.filter((n) => derived.liked.has(n)).length / flavour.length : 0,
+          coverage: names.length ? (names.length - missing.length) / names.length : 1,
+          missing,
+        };
+      },
+
+      async hideIdea(ideaId) {
+        if (snap.hiddenIdeas.some((h) => h.idea_id === ideaId)) return;
+        await run(() => insert("hidden_ideas", [{ id: crypto.randomUUID(), household_id: hid, idea_id: ideaId, created_at: now() }]));
+      },
+
+      async adoptIdea(idea, cookNow) {
+        const mealId = crypto.randomUUID();
+        let added: string[] = [];
+        await run(async () => {
+          const ids: string[] = [];
+          const fresh: Ingredient[] = [];
+          const toBuy: Ingredient[] = [];
+          for (const raw of idea.ingredients) {
+            const n = norm(raw);
+            const found = derived.ingByName.get(n);
+            if (found) {
+              if (!ids.includes(found.id)) ids.push(found.id);
+              if (found.state === "doslo") toBuy.push(found);
+              continue;
+            }
+            const basic = BASICS.has(n);
+            const ing: Ingredient = { id: crypto.randomUUID(), household_id: hid, name: n, zone: zoneFor(n), state: basic ? "mame" : "doslo", tracked: true };
+            fresh.push(ing);
+            ids.push(ing.id);
+            if (!basic) toBuy.push(ing);
+          }
+          await insert("ingredients", fresh as unknown as Row[]);
+          const meal = { id: mealId, household_id: hid, name: idea.name, minutes: idea.minutes, tags: idea.tags, recipe: idea.steps.join("\n"), photo_path: null, created_at: now() };
+          await insert("meals", [meal as unknown as Row]);
+          dispatch({ type: "mealIngredients", mealId, ids });
+          await backend.setMealIngredients(mealId, ids);
+          if (cookNow) {
+            const row: CookLog = { id: crypto.randomUUID(), household_id: hid, meal_id: mealId, cooked_on: isoDate(new Date()), cooked_by: userId };
+            await insert("cook_log", [row as unknown as Row]);
+            added = await addIngredientsToShop(toBuy, mealId);
+          }
+        });
+        return { mealId, added };
       },
 
       async stockPantry(rows) {

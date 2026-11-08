@@ -6,7 +6,7 @@ export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 export const plural = (n: number, one: string, few: string, many: string) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);
 
 export function tidy(text: string) {
-  return text.replace(/(^|[\s(„])([svkzouSVKZOU])\s+/g, `$1$2${NB}`);
+  return text.replace(/(^|[\s(„])([svkzouSVKZOU])\s+/g, `$1$2${NB}`).replace(/(\d) (?=[\p{L}°%])/gu, `$1${NB}`);
 }
 
 export function isoDate(d: Date) {

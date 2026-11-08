@@ -4,11 +4,13 @@ import { useSheets } from "../components/sheets";
 import { useToast } from "../components/Toast";
 import { HeroPlate, Plate, Stitch } from "../plate/Plate";
 import { ago, list, minutes, tidy, todayLabel } from "../lib/format";
-import { MOOD_OPTIONS, TIME_OPTIONS } from "../lib/labels";
+import { MOOD_OPTIONS, SOURCE_OPTIONS, TIME_OPTIONS, type Source } from "../lib/labels";
 import { gsap, motionOK, revealPlates, ScrollTrigger, SplitText, stitchIn, useGSAP, withMotion, wordsUp } from "../lib/motion";
 import { scrollToEl } from "../lib/smooth";
-import { recommend, type Prefs } from "../lib/recommend";
-import { useStore } from "../lib/store";
+import { recommend, recommendIdeas, type Prefs } from "../lib/recommend";
+import { ideaById, type Idea } from "../data/ideas";
+import { useIdeaActions } from "./useIdeaActions";
+import { norm, useStore } from "../lib/store";
 import type { Meal } from "../lib/types";
 import { useCookAction } from "./useCook";
 import { ShareIcon } from "../components/ShareIcon";
@@ -17,14 +19,55 @@ import { useShareMeal } from "./useShare";
 const PREFS_KEY = "na-talirku-prefs";
 let introPlayed = false;
 
-function loadPrefs(): Prefs {
+type TodayPrefs = Prefs & { source: Source };
+type Pick = { kind: "meal" | "idea"; id: string };
+
+function loadPrefs(): TodayPrefs {
   try {
     const p = JSON.parse(localStorage.getItem(PREFS_KEY) || "null");
-    if (p && typeof p.time === "number" && typeof p.mood === "string") return p;
+    if (p && typeof p.time === "number" && typeof p.mood === "string") return { source: "mix", ...p };
   } catch {
     /* empty */
   }
-  return { time: 999, mood: "any" };
+  return { time: 999, mood: "any", source: "mix" };
+}
+
+function IdeaCard({ idea }: { idea: Idea }) {
+  const store = useStore();
+  const { openIdea } = useSheets();
+  const { cookIdea } = useIdeaActions();
+  const miss = store.ideaInfo(idea).missing;
+  return (
+    <article className="s-card">
+      <button className="dish-btn" onClick={() => openIdea(idea.id)} aria-label={`Recept: ${idea.name}`}>
+        <Plate meal={{ id: idea.id, name: idea.name }} />
+      </button>
+      <div className="s-body">
+        <p className="new-badge">nové jídlo</p>
+        <h3 className="s-name">{tidy(idea.name)}</h3>
+        <p className="s-meta">
+          {minutes(idea.minutes)}, {tidy(idea.about.charAt(0).toLowerCase() + idea.about.slice(1))}
+        </p>
+        <p className="need">
+          {miss.length ? (
+            <>
+              <span className="need-label">Dokoupit:</span> {list(miss)}
+            </>
+          ) : (
+            <span className="ok">Všechno máme doma</span>
+          )}
+        </p>
+        <div className="s-actions">
+          <button className="btn primary" onClick={() => cookIdea(idea)}>
+            Tohle uvaříme
+          </button>
+          <button className="btn ghost" onClick={() => openIdea(idea.id)}>
+            Recept
+          </button>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 function SuggestCard({ meal }: { meal: Meal }) {
@@ -71,19 +114,24 @@ export function Today() {
   const toast = useToast();
   const root = useRef<HTMLElement>(null);
   const suggestRef = useRef<HTMLElement>(null);
-  const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
-  const [picks, setPicks] = useState<string[] | null>(null);
+  const [prefs, setPrefs] = useState<TodayPrefs>(loadPrefs);
+  const [picks, setPicks] = useState<Pick[] | null>(null);
   const spinNext = useRef(false);
   const [round, setRound] = useState(0);
 
-  const usedTags = new Set(store.snap.meals.flatMap((m) => m.tags));
+  const usedTags = new Set([...store.snap.meals, ...(prefs.source === "nase" ? [] : store.ideas)].flatMap((m) => m.tags));
   const moodOptions = MOOD_OPTIONS.filter(([k]) => k === "any" || usedTags.has(k));
-  const active: Prefs = moodOptions.some(([k]) => k === prefs.mood) ? prefs : { ...prefs, mood: "any" };
+  const active: TodayPrefs = moodOptions.some(([k]) => k === prefs.mood) ? prefs : { ...prefs, mood: "any" };
 
   const facts = (m: Meal) => ({ coverage: store.coverageOf(m.id), daysSince: store.daysSinceCooked(m.id) });
 
   const advise = (withSpin: boolean, nextPrefs = active) => {
-    const next = recommend(store.snap.meals, facts, nextPrefs, picks ?? []).map((m) => m.id);
+    const prev = picks ?? [];
+    const wantMeals = nextPrefs.source === "nove" ? 0 : nextPrefs.source === "nase" ? 3 : 2;
+    const meals = wantMeals ? recommend(store.snap.meals, facts, nextPrefs, prev.filter((p) => p.kind === "meal").map((p) => p.id)).slice(0, wantMeals) : [];
+    const wantIdeas = nextPrefs.source === "nase" ? 0 : 3 - meals.length;
+    const ideas = recommendIdeas(store.ideas, store.ideaInfo, nextPrefs, prev.filter((p) => p.kind === "idea").map((p) => p.id), wantIdeas);
+    const next: Pick[] = [...meals.map((m) => ({ kind: "meal" as const, id: m.id })), ...ideas.map((i) => ({ kind: "idea" as const, id: i.id }))];
     const first = picks === null;
     setPicks(next);
     setRound((r) => r + 1);
@@ -94,7 +142,7 @@ export function Today() {
     }
   };
 
-  const setPref = (p: Prefs) => {
+  const setPref = (p: TodayPrefs) => {
     setPrefs(p);
     try {
       localStorage.setItem(PREFS_KEY, JSON.stringify(p));
@@ -176,7 +224,17 @@ export function Today() {
     { scope: root, dependencies: [round] },
   );
 
-  const shown = (picks ?? []).map(store.mealById).filter(Boolean) as Meal[];
+  const shown = (picks ?? []).flatMap((p) => {
+    if (p.kind === "meal") {
+      const m = store.mealById(p.id);
+      return m ? [<SuggestCard key={`${round}-${p.id}`} meal={m} />] : [];
+    }
+    const idea = ideaById.get(p.id);
+    if (!idea) return [];
+    if (store.ideas.includes(idea)) return [<IdeaCard key={`${round}-${p.id}`} idea={idea} />];
+    const adopted = store.snap.meals.find((m) => norm(m.name) === norm(idea.name));
+    return adopted ? [<SuggestCard key={`${round}-${p.id}`} meal={adopted} />] : [];
+  });
   const forgotten = store.snap.meals
     .map((m) => ({ m, d: store.daysSinceCooked(m.id) }))
     .filter((x) => x.d === null || x.d >= 21)
@@ -220,6 +278,12 @@ export function Today() {
           <Chips options={TIME_OPTIONS} value={active.time} labelledBy="l-time" onChange={(time) => setPref({ ...active, time })} />
         </div>
         <div className="pref">
+          <span className="pref-label" id="l-source">
+            Naše, nebo nové
+          </span>
+          <Chips options={SOURCE_OPTIONS} value={active.source} labelledBy="l-source" onChange={(source) => setPref({ ...active, source })} />
+        </div>
+        <div className="pref">
           <span className="pref-label" id="l-mood">
             Na co je chuť
           </span>
@@ -237,7 +301,7 @@ export function Today() {
           </button>
         </div>
         <div className="suggest-track">
-          {shown.length ? shown.map((m) => <SuggestCard key={`${round}-${m.id}`} meal={m} />) : <p className="quiet">Na tohle teď nic nemáme. Zkus jiný čas nebo chuť.</p>}
+          {shown.length ? shown : <p className="quiet">Na tohle teď nic nemáme. Zkus jiný čas nebo chuť.</p>}
         </div>
       </section>
 

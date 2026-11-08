@@ -10,15 +10,20 @@ import type { Tag } from "../lib/types";
 
 export function Meals() {
   const store = useStore();
-  const { openMeal, openEdit } = useSheets();
+  const { openMeal, openEdit, openIdea } = useSheets();
   const root = useRef<HTMLElement>(null);
   const [filter, setFilter] = useState<Tag | "all">("all");
   const changed = useRef(false);
 
-  const usedTags = new Set(store.snap.meals.flatMap((m) => m.tags));
+  const usedTags = new Set([...store.snap.meals, ...store.ideas].flatMap((m) => m.tags));
   const filterOptions = FILTER_OPTIONS.filter(([k]) => k === "all" || usedTags.has(k));
   const shown = filterOptions.some(([k]) => k === filter) ? filter : "all";
   const meals = store.snap.meals.filter((m) => shown === "all" || m.tags.includes(shown)).sort((a, b) => a.name.localeCompare(b.name, "cs"));
+  const ideas = store.ideas
+    .filter((i) => shown === "all" || i.tags.includes(shown))
+    .map((i) => ({ i, taste: store.ideaInfo(i).taste }))
+    .sort((a, b) => b.taste - a.taste || a.i.name.localeCompare(b.i.name, "cs"))
+    .map((x) => x.i);
   const c = meals.length;
   const word = plural(c, "jídlo", "jídla", "jídel");
 
@@ -83,6 +88,26 @@ export function Meals() {
         </div>
       ) : (
         <p className="quiet">{store.snap.meals.length ? "S tímhle štítkem zatím nic nemáme." : "Katalog je prázdný. Přidej první jídlo."}</p>
+      )}
+      {ideas.length > 0 && (
+        <section className="ideas">
+          <div className="sec-head">
+            <h2>Nápady na nová jídla</h2>
+          </div>
+          <p className="sub">Vybrané podle toho, co vaříte. Co vás neláká, v detailu skryjete.</p>
+          <div className="grid">
+            {ideas.map((i) => (
+              <button key={i.id} className="m-card" onClick={() => openIdea(i.id)}>
+                <Plate meal={{ id: i.id, name: i.name }} />
+                <span className="m-text">
+                  <span className="new-badge">nové</span>
+                  <span className="m-name">{tidy(i.name)}</span>
+                  <span className="m-sub">{minutes(i.minutes)}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
       )}
     </section>
   );

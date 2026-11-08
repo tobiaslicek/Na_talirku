@@ -19,8 +19,13 @@ const SKIP = [
   "republik", "spolec", "provozovn", "adresa", "www", "albert", "lidl", "kaufland", "billa", "tesco", "penny", "globus", "rohlik",
 ];
 
-const LEDNICE = ["mlek", "mlik", "jogurt", "syr", "smetan", "masl", "tvaroh", "vejc", "tofu", "salat", "spenat", "avokad", "okurk", "rajc", "paprik", "citron", "mozzarel", "parmaz", "cedar", "eidam", "kefir", "podmasl"];
-const MRAZAK = ["mraz", "zmrz", "mrazen"];
+const LEDNICE = [
+  "mlek", "mlik", "jogurt", "syr", "smetan", "masl", "tvaroh", "vejc", "tofu", "salat", "spenat", "avokad", "okurk", "rajc", "paprik", "citron",
+  "mozzarel", "parmaz", "cedar", "eidam", "kefir", "podmasl", "feta", "hallou", "ricott", "paneer", "pesto", "porek", "brokol", "cuket", "kvetak",
+  "mrkev", "klick", "koriandr", "bazalk", "mata", "limetk", "jarni", "zazvor", "gnocchi", "choi", "rukol", "celer", "zampion", "shiitak", "miso",
+  "gochuj", "majonez",
+];
+const MRAZAK = ["mraz", "zmrz", "mrazen", "hrasek", "edamam", "falafel"];
 
 const words = (s: string) => fold(s).split(/[^a-z]+/).filter((w) => w.length >= 3);
 
@@ -48,6 +53,8 @@ function bestKnown(tokens: string[], known: KnownIngredient[]) {
   }
   return best?.k ?? null;
 }
+
+export const zoneFor = (name: string) => guessZone(words(name));
 
 function guessZone(tokens: string[]): Zone {
   if (tokens.some((t) => MRAZAK.some((m) => t.startsWith(m)))) return "mrazak";

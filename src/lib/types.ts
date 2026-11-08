@@ -25,6 +25,7 @@ export interface Meal {
   minutes: number;
   tags: Tag[];
   photo_path: string | null;
+  recipe?: string | null;
   created_at: string;
 }
 
@@ -62,6 +63,13 @@ export interface ShoppingItem {
   created_at: string;
 }
 
+export interface HiddenIdea {
+  id: string;
+  household_id: string;
+  idea_id: string;
+  created_at: string;
+}
+
 export interface Snapshot {
   household: Household;
   members: Member[];
@@ -70,5 +78,6 @@ export interface Snapshot {
   mealIngredients: MealIngredient[];
   cookLog: CookLog[];
   shop: ShoppingItem[];
+  hiddenIdeas: HiddenIdea[];
   photoUrls: Record<string, string>;
 }

@@ -9,6 +9,7 @@ import { useStore } from "../lib/store";
 import { useCookAction } from "./useCook";
 import { ShareIcon } from "../components/ShareIcon";
 import { useShareMeal } from "./useShare";
+import { Recipe } from "./IdeaDetail";
 
 export function MealDetail({ id }: { id: string }) {
   const store = useStore();
@@ -67,6 +68,7 @@ export function MealDetail({ id }: { id: string }) {
           Zatím bez surovin.
         </p>
       )}
+      <Recipe steps={(meal.recipe ?? "").split("\n").map((s) => s.trim()).filter(Boolean)} />
       <div className="sheet-actions">
         <button className="btn primary" onClick={() => cook(id)}>
           Tohle uvaříme

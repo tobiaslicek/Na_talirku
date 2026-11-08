@@ -1,3 +1,4 @@
+import { IDEAS } from "../data/ideas";
 type Rng = () => number;
 type Pt = [number, number];
 
@@ -364,7 +365,10 @@ const SEED_ART: Record<string, string> = {
   "tofu ve sladkokyselé chilli omáčce": "tofu",
 };
 
-export const artKeyFor = (name: string) => SEED_ART[name.trim().toLowerCase().replace(/\s+/g, " ")] ?? null;
+const artName = (name: string) => name.trim().toLowerCase().replace(/\s+/g, " ");
+const IDEA_ART = new Map(IDEAS.filter((i) => i.art).map((i) => [artName(i.name), i.art!]));
+
+export const artKeyFor = (name: string) => SEED_ART[artName(name)] ?? IDEA_ART.get(artName(name)) ?? null;
 
 const FALLBACK: [string, string][] = [["#D9A66A", "#F0CF9C"], ["#B9603C", "#D98A62"], ["#C9B27A", "#E8DAB0"], ["#8C9A55", "#B6C27E"], ["#A86A4A", "#CC9473"]];
 

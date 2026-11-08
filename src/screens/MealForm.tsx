@@ -14,6 +14,7 @@ export function MealForm({ id }: { id?: string }) {
   const [name, setName] = useState(meal?.name ?? "");
   const [mins, setMins] = useState(String(meal?.minutes ?? 30));
   const [tags, setTags] = useState<Tag[]>(meal?.tags ?? []);
+  const [recipe, setRecipe] = useState(meal?.recipe ?? "");
   const [ings, setIngs] = useState<string[]>(() => (id ? store.ingredientsOf(id).map((i) => i.name) : []));
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
@@ -32,7 +33,7 @@ export function MealForm({ id }: { id?: string }) {
     if (!name.trim()) return setError("Jídlo potřebuje název.");
     if (!minutes || minutes < 1) return setError("Zadej, kolik minut příprava zabere.");
     const pending = draft.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
-    const saved = await store.saveMeal({ id, name, minutes, tags, ingredientNames: [...ings, ...pending] });
+    const saved = await store.saveMeal({ id, name, minutes, tags, recipe, ingredientNames: [...ings, ...pending] });
     toast(id ? "Jídlo je upravené." : "Jídlo je v katalogu.");
     openMeal(saved);
   };
@@ -113,6 +114,10 @@ export function MealForm({ id }: { id?: string }) {
         </datalist>
         <p className="hint">Nové suroviny se založí ve spíži jako „máme“.</p>
       </div>
+      <label className="field">
+        <span className="form-label">Postup</span>
+        <textarea className="input textarea" value={recipe} onChange={(e) => setRecipe(e.target.value)} placeholder="Každý krok na nový řádek. Nepovinné." rows={4} />
+      </label>
       {error && (
         <p className="error" role="alert">
           {error}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { recommend, score } from "./recommend";
+import { recommend, recommendIdeas, score } from "./recommend";
 import { ago, minutes, tidy, NB } from "./format";
 import type { Meal, Tag } from "./types";
 
@@ -48,5 +48,25 @@ describe("format", () => {
     expect(ago(1)).toBe("včera");
     expect(ago(14)).toBe(`před 2${NB}týdny`);
     expect(ago(null)).toBe("zatím nikdy");
+  });
+});
+
+describe("recommendIdeas", () => {
+  const ideas = [
+    { id: "a", minutes: 20, tags: ["rychle"] as Tag[] },
+    { id: "b", minutes: 50, tags: [] as Tag[] },
+    { id: "c", minutes: 25, tags: ["polevka"] as Tag[] },
+    { id: "d", minutes: 15, tags: [] as Tag[] },
+  ];
+  const facts = (i: { id: string }) => ({ taste: i.id === "d" ? 1 : 0.2, coverage: i.id === "a" ? 1 : 0 });
+
+  it("respects time and mood and prefers what we like and have", () => {
+    expect(recommendIdeas(ideas, facts, { time: 30, mood: "any" }, [], 2, () => 0).map((i) => i.id)).toEqual(["d", "a"]);
+    expect(recommendIdeas(ideas, facts, { time: 999, mood: "polevka" }, [], 3, () => 0).map((i) => i.id)).toEqual(["c"]);
+  });
+
+  it("skips previous picks when enough remain and returns nothing for zero", () => {
+    expect(recommendIdeas(ideas, facts, { time: 999, mood: "any" }, ["d"], 2, () => 0).map((i) => i.id)).toEqual(["a", "b"]);
+    expect(recommendIdeas(ideas, facts, { time: 999, mood: "any" }, [], 0)).toEqual([]);
   });
 });

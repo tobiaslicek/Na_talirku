@@ -59,6 +59,8 @@ skóre    = pokrytí × 55 + dní × 0,9 + náhoda(0–22)
 - Vyřaď jídla vařená v posledních 2 dnech.
 - Filtry: čas (do 30 min, do hodiny, je to jedno) a chuť (tag nebo cokoliv).
 - Vrať 3 jídla. „Jiné tři“ vrátí další trojici a pokud to jde, vynechá ty předchozí.
+- Hlavní smysl aplikace je objevovat i nová jídla, protože vaříme pořád dokola. Knihovna nápadů je v `src/data/ideas.ts` (vegetariánská, laděná podle našeho katalogu, každý nápad má suroviny a krátký postup). Volba „Naše, nebo nové“: Obojí = 2 naše + 1 nové, Osvědčené = 3 naše, Něco nového = 3 nápady. Skóre nápadu je v `ideaScore` (chuť × 45 + pokrytí × 35 + náhoda × 30); chuť je podíl surovin, které se vyskytují v našich jídlech.
+- „Tohle uvaříme“ u nápadu ho převezme mezi naše jídla i s postupem, „Tohle nechceme“ ho skryje pro celou domácnost (`hidden_ideas`).
 
 ## Klíčové toky
 

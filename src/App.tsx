@@ -13,6 +13,7 @@ import { supabase } from "./lib/supabase";
 import { PlateDefs } from "./plate/Plate";
 import { Login, Onboarding } from "./screens/Gate";
 import { HomeSheet } from "./screens/HomeSheet";
+import { IdeaDetail } from "./screens/IdeaDetail";
 import { IngredientForm } from "./screens/IngredientForm";
 import { PhotoImport } from "./screens/PhotoImport";
 import { MealDetail } from "./screens/MealDetail";
@@ -35,6 +36,7 @@ function Shell() {
   const sheets = useMemo<Sheets>(
     () => ({
       openMeal: (id) => setSheet({ kind: "meal", id }),
+      openIdea: (id) => setSheet({ kind: "idea", id }),
       openEdit: (id) => setSheet({ kind: "edit", id }),
       openHome: () => setSheet({ kind: "home" }),
       openIngredient: (id) => setSheet({ kind: "ingredient", id }),
@@ -72,6 +74,7 @@ function Shell() {
       <TabBar view={view} badge={store.openShop.length} />
       <Sheet open={sheet !== null} onClose={sheets.close} labelledBy="sheet-title">
         {sheet?.kind === "meal" && <MealDetail key={sheet.id} id={sheet.id} />}
+        {sheet?.kind === "idea" && <IdeaDetail key={sheet.id} id={sheet.id} />}
         {sheet?.kind === "edit" && <MealForm key={sheet.id ?? "new"} id={sheet.id} />}
         {sheet?.kind === "home" && <HomeSheet />}
         {sheet?.kind === "ingredient" && <IngredientForm key={sheet.id ?? "new"} id={sheet.id} />}

@@ -11,6 +11,7 @@ const TABLE_KEY: Record<Table, keyof Snapshot> = {
   ingredients: "ingredients",
   cook_log: "cookLog",
   shopping_items: "shop",
+  hidden_ideas: "hiddenIdeas",
 };
 
 function seed(): Snapshot {
@@ -29,6 +30,7 @@ function seed(): Snapshot {
     ingredients,
     mealIngredients: [],
     cookLog: [],
+    hiddenIdeas: [],
     shop: SEED_SHOP.map((name) => ({ id: crypto.randomUUID(), household_id: hid, name, ingredient_id: null, for_meal_id: null, done: false, done_at: null, created_by: null, created_at: now })),
     photoUrls: {},
   };
@@ -52,7 +54,11 @@ function seed(): Snapshot {
 function read(): Snapshot {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as Snapshot;
+    if (raw) {
+      const s = JSON.parse(raw) as Snapshot;
+      s.hiddenIdeas ??= [];
+      return s;
+    }
   } catch {
     /* empty */
   }

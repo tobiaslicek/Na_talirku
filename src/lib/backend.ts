@@ -2,7 +2,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import type { Snapshot } from "./types";
 
-export type Table = "meals" | "ingredients" | "cook_log" | "shopping_items";
+export type Table = "meals" | "ingredients" | "cook_log" | "shopping_items" | "hidden_ideas";
 export type Row = { id: string } & Record<string, unknown>;
 
 export type Change =
@@ -32,7 +32,7 @@ export function supabaseBackend(householdId: string): Backend {
     kind: "supabase",
 
     async load() {
-      const [household, members, meals, ingredients, mealIngredients, cookLog, shop] = await Promise.all([
+      const [household, members, meals, ingredients, mealIngredients, cookLog, shop, hiddenIdeas] = await Promise.all([
         db.from("households").select("*").eq("id", householdId).single().then(check),
         db.from("members").select("user_id, household_id, display_name").eq("household_id", householdId).then(check),
         db.from("meals").select("*").eq("household_id", householdId).then(check),
@@ -40,6 +40,7 @@ export function supabaseBackend(householdId: string): Backend {
         db.from("meal_ingredients").select("meal_id, ingredient_id, meals!inner(household_id)").eq("meals.household_id", householdId).then(check),
         db.from("cook_log").select("*").eq("household_id", householdId).order("cooked_on", { ascending: false }).then(check),
         db.from("shopping_items").select("*").eq("household_id", householdId).order("created_at").then(check),
+        db.from("hidden_ideas").select("*").eq("household_id", householdId).then(check),
       ]);
 
       const photoUrls: Record<string, string> = {};
@@ -59,6 +60,7 @@ export function supabaseBackend(householdId: string): Backend {
         mealIngredients: (mealIngredients as { meal_id: string; ingredient_id: string }[]).map(({ meal_id, ingredient_id }) => ({ meal_id, ingredient_id })),
         cookLog,
         shop,
+        hiddenIdeas,
         photoUrls,
       } as Snapshot;
     },

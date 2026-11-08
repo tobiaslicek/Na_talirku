@@ -20,6 +20,34 @@ export function score(f: MealFacts, random: number) {
   return f.coverage * 55 + days * 0.9 + random * 22;
 }
 
+export interface IdeaFacts {
+  taste: number;
+  coverage: number;
+}
+
+export function ideaScore(f: IdeaFacts, random: number) {
+  return f.taste * 45 + f.coverage * 35 + random * 30;
+}
+
+export function recommendIdeas<T extends { id: string; minutes: number; tags: Tag[] }>(
+  ideas: T[],
+  facts: (i: T) => IdeaFacts,
+  prefs: Prefs,
+  exclude: string[] = [],
+  count = 3,
+  random: () => number = Math.random,
+): T[] {
+  if (count <= 0) return [];
+  let pool = ideas.filter((i) => i.minutes <= prefs.time && (prefs.mood === "any" || i.tags.includes(prefs.mood)));
+  const fresh = pool.filter((i) => !exclude.includes(i.id));
+  if (fresh.length >= count) pool = fresh;
+  return pool
+    .map((i) => ({ i, s: ideaScore(facts(i), random()) }))
+    .sort((a, b) => b.s - a.s)
+    .slice(0, count)
+    .map((x) => x.i);
+}
+
 export function recommend(
   meals: Meal[],
   facts: (m: Meal) => MealFacts,
