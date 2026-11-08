@@ -61,7 +61,7 @@ skóre    = pokrytí × 55 + dní × 0,9 + náhoda(0–22)
 - Vyřaď jídla vařená v posledních 2 dnech.
 - Filtry: čas (do 30 min, do hodiny, je to jedno) a chuť (tag nebo cokoliv).
 - Vrať 3 jídla. „Jiné tři“ vrátí další trojici a pokud to jde, vynechá ty předchozí.
-- Hlavní smysl aplikace je objevovat i nová jídla, protože vaříme pořád dokola. Knihovna nápadů je v `src/data/ideas.ts` (vegetariánská, laděná podle našeho katalogu, každý nápad má suroviny a krátký postup). Volba „Naše, nebo nové“: Obojí = 2 naše + 1 nové, Osvědčené = 3 naše, Něco nového = 3 nápady. Skóre nápadu je v `ideaScore` (chuť × 45 + pokrytí × 35 + náhoda × 30, nápad se srdíčkem +120, takže přijde na řadu jako první); chuť je podíl surovin, které se vyskytují v našich jídlech.
+- Hlavní smysl aplikace je objevovat i nová jídla, protože vaříme pořád dokola. Knihovna nápadů je v `src/data/ideas.ts` (vegetariánská, laděná podle našeho katalogu, každý nápad má suroviny a krátký postup). Volba „Naše, nebo nové“: Obojí = 2 nové + 1 naše (nová jdou první; když nápadů kvůli filtrům chybí, doplní se naše), Osvědčené = 3 naše, Něco nového = 3 nápady. Skóre nápadu je v `ideaScore` (chuť × 45 + pokrytí × 35 + náhoda × 30, nápad se srdíčkem +120, takže přijde na řadu jako první); chuť je podíl surovin, které se vyskytují v našich jídlech.
 - Detail nápadu má v hero srdíčko (převezme ho mezi naše jídla i s postupem, znovu klepnutí ho odebere) a palec dolů (skryje ho pro celou domácnost, `idea_votes.vote = ne`). Po srdíčku se pod popisem ukážou podobná jídla (`similar`, kosinová podobnost surovin bez základů + společné tagy). U nich srdíčko jen přidá nápad do návrhů na příště (`vote = chceme`), křížek ho skryje. Stejná řada „Podobná nová jídla“ je v detailu každého našeho jídla.
 
 ## Klíčové toky

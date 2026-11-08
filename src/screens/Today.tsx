@@ -145,12 +145,12 @@ export function Today() {
 
   const advise = (withSpin: boolean, nextPrefs = active) => {
     const prev = picks ?? [];
-    const wantMeals = nextPrefs.source === "nove" ? 0 : nextPrefs.source === "nase" ? 3 : 2;
+    const wantIdeas = nextPrefs.source === "nase" ? 0 : nextPrefs.source === "nove" ? 3 : 2;
+    const ideas = recommendIdeas(store.ideas, store.ideaInfo, nextPrefs, prev.filter((p) => p.kind === "idea").map((p) => p.id), wantIdeas);
+    const wantMeals = nextPrefs.source === "nove" ? 0 : 3 - ideas.length;
     const pool = store.snap.meals.filter((m) => !planned.has(m.id));
     const meals = wantMeals ? recommend(pool, facts, nextPrefs, prev.filter((p) => p.kind === "meal").map((p) => p.id)).slice(0, wantMeals) : [];
-    const wantIdeas = nextPrefs.source === "nase" ? 0 : 3 - meals.length;
-    const ideas = recommendIdeas(store.ideas, store.ideaInfo, nextPrefs, prev.filter((p) => p.kind === "idea").map((p) => p.id), wantIdeas);
-    const next: Pick[] = [...meals.map((m) => ({ kind: "meal" as const, id: m.id })), ...ideas.map((i) => ({ kind: "idea" as const, id: i.id }))];
+    const next: Pick[] = [...ideas.map((i) => ({ kind: "idea" as const, id: i.id })), ...meals.map((m) => ({ kind: "meal" as const, id: m.id }))];
     const first = picks === null;
     setPicks(next);
     setRound((r) => r + 1);
