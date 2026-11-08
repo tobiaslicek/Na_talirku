@@ -9,7 +9,7 @@ Sdílená aplikace pro domácnost (já + manželka), která řeší každodenní
 - Implementuj **jen styl „Mix“** (výchozí v prototypu): cibulákový porcelán + krojové prvky (věneček kolem hlavního talíře, stuha s růžičkami jako oddělovač, prošití kolem tlačítka „Poraď mi“). Styly „Cibulák“ a „Kroj“ i přepínač stylů jsou v prototypu jen kvůli porovnání, do aplikace nepatří.
 - Převezmi barevné tokeny (CSS custom properties v `:root`, světlý i tmavý režim), typografii (Fraunces pro nadpisy, Instrument Sans pro UI), SVG talíř s okrajem cibuláku, věneček, vzor stuhy a ilustrace jídel.
 - Ilustrace jídel v prototypu jsou dočasné. Ve fázi 3 je nahradí generované fotky (shora na cibulákovém talíři), komponenta talíře musí umět zobrazit fotku místo ilustrace.
-- Ukázková data (`MEALS`, `PANTRY`) v prototypu použij jako seed, dokud nedodám skutečný seznam jídel.
+- Seed v `src/data/seed.ts` je náš skutečný seznam jídel. Jsme vegetariáni (bez masa a ryb, mléčné výrobky a vejce ano), nová jídla a návrhy proto nesmí obsahovat maso ani ryby.
 
 ## Stack
 

@@ -15,7 +15,10 @@ export function Meals() {
   const [filter, setFilter] = useState<Tag | "all">("all");
   const changed = useRef(false);
 
-  const meals = store.snap.meals.filter((m) => filter === "all" || m.tags.includes(filter)).sort((a, b) => a.name.localeCompare(b.name, "cs"));
+  const usedTags = new Set(store.snap.meals.flatMap((m) => m.tags));
+  const filterOptions = FILTER_OPTIONS.filter(([k]) => k === "all" || usedTags.has(k));
+  const shown = filterOptions.some(([k]) => k === filter) ? filter : "all";
+  const meals = store.snap.meals.filter((m) => shown === "all" || m.tags.includes(shown)).sort((a, b) => a.name.localeCompare(b.name, "cs"));
   const c = meals.length;
   const word = plural(c, "jídlo", "jídla", "jídel");
 
@@ -52,14 +55,14 @@ export function Meals() {
             Přidat jídlo
           </button>
         </div>
-        <p className="sub">{filter === "all" ? `${c} ${word}, která děláme dokola` : `${c} ${word}`}</p>
+        <p className="sub">{shown === "all" ? `${c} ${word}, která děláme dokola` : `${c} ${word}`}</p>
       </header>
       <Stitch />
       <Chips
         className="filter"
         label="Filtr jídel"
-        options={FILTER_OPTIONS}
-        value={filter}
+        options={filterOptions}
+        value={shown}
         onChange={(f) => {
           changed.current = true;
           setFilter(f);

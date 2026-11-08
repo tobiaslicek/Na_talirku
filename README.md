@@ -31,11 +31,14 @@ Funkce `parse-photos` posílá fotky účtenek, nákupu nebo lednice do Claude a
 ```bash
 supabase secrets set ANTHROPIC_API_KEY=...
 supabase functions deploy parse-photos
+supabase functions deploy device-code
 ```
 
 ### Domácnost
 
-Po prvním přihlášení se založí domácnost i s ukázkovými jídly a spíží. Druhý člen se přihlásí svým e-mailem a zadá kód domácnosti, který najdeš pod kolečkem vpravo nahoře. Funguje i jeden společný účet.
+Po prvním přihlášení se založí domácnost s naším katalogem jídel a spíží (`src/data/seed.ts`), zatím bez historie vaření. Druhý člen se přihlásí svým e-mailem a zadá kód domácnosti, který najdeš pod kolečkem vpravo nahoře. Funguje i jeden společný účet.
+
+Odkaz z e-mailu se otevře ve výchozím prohlížeči. Pro přihlášení jinde (jiný prohlížeč, aplikace na ploše telefonu) si v přihlášené aplikaci pod kolečkem nech ukázat kód a na druhém zařízení zvol „Mám kód z jiného zařízení“. Kód vytváří funkce `device-code` bez posílání e-mailu, takže nespotřebuje limit Supabase na 2 e-maily za hodinu.
 
 Jídlo z návrhů nebo z detailu jde poslat ve zprávě, stejně tak nákupní seznam. Zpráva obsahuje odkaz, který v aplikaci otevře přímo dané jídlo nebo sdílený nákup k odškrtávání.
 
