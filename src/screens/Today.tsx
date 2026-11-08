@@ -76,9 +76,13 @@ export function Today() {
   const spinNext = useRef(false);
   const [round, setRound] = useState(0);
 
+  const usedTags = new Set(store.snap.meals.flatMap((m) => m.tags));
+  const moodOptions = MOOD_OPTIONS.filter(([k]) => k === "any" || usedTags.has(k));
+  const active: Prefs = moodOptions.some(([k]) => k === prefs.mood) ? prefs : { ...prefs, mood: "any" };
+
   const facts = (m: Meal) => ({ coverage: store.coverageOf(m.id), daysSince: store.daysSinceCooked(m.id) });
 
-  const advise = (withSpin: boolean, nextPrefs = prefs) => {
+  const advise = (withSpin: boolean, nextPrefs = active) => {
     const next = recommend(store.snap.meals, facts, nextPrefs, picks ?? []).map((m) => m.id);
     const first = picks === null;
     setPicks(next);
@@ -213,13 +217,13 @@ export function Today() {
           <span className="pref-label" id="l-time">
             Kolik máme času
           </span>
-          <Chips options={TIME_OPTIONS} value={prefs.time} labelledBy="l-time" onChange={(time) => setPref({ ...prefs, time })} />
+          <Chips options={TIME_OPTIONS} value={active.time} labelledBy="l-time" onChange={(time) => setPref({ ...active, time })} />
         </div>
         <div className="pref">
           <span className="pref-label" id="l-mood">
             Na co je chuť
           </span>
-          <Chips options={MOOD_OPTIONS} value={prefs.mood} labelledBy="l-mood" onChange={(mood) => setPref({ ...prefs, mood })} />
+          <Chips options={moodOptions} value={active.mood} labelledBy="l-mood" onChange={(mood) => setPref({ ...active, mood })} />
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { SEED_MEALS, SEED_PANTRY, SEED_SHOP } from "../src/data/seed.ts";
+import { SEED_MEALS, SEED_PANTRY } from "../src/data/seed.ts";
 
 const pantry = Object.entries(SEED_PANTRY).flatMap(([zone, items]) => items.map(([name, state]) => ({ name, zone, state })));
 const known = new Set(pantry.map((p) => p.name));
@@ -10,14 +10,14 @@ for (const m of SEED_MEALS) {
     }
   }
 }
-const meals = SEED_MEALS.map((m) => ({ name: m.name, minutes: m.minutes, tags: m.tags, last: m.lastDaysAgo, ingredients: m.ingredients }));
+const meals = SEED_MEALS.map((m) => ({ name: m.name, minutes: m.minutes, tags: m.tags, ingredients: m.ingredients }));
 
 const lit = (v) => `'${JSON.stringify(v).replaceAll("'", "''")}'::jsonb`;
 
 process.stdout.write(`create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
 
-create function private.seed_household(hid uuid)
+create or replace function private.seed_household(hid uuid)
 returns void
 language plpgsql
 security definer
@@ -26,32 +26,28 @@ as $$
 declare
   pantry jsonb := ${lit(pantry)};
   meals jsonb := ${lit(meals)};
-  shop jsonb := ${lit(SEED_SHOP)};
   m jsonb;
   mid uuid;
 begin
   insert into public.ingredients (household_id, name, zone, state)
-  select hid, x ->> 'name', x ->> 'zone', x ->> 'state' from jsonb_array_elements(pantry) x;
+  select hid, x ->> 'name', x ->> 'zone', x ->> 'state' from jsonb_array_elements(pantry) x
+  on conflict (household_id, lower(name)) do nothing;
 
   for m in select * from jsonb_array_elements(meals) loop
+    continue when exists (select 1 from public.meals where household_id = hid and lower(name) = lower(m ->> 'name'));
+
     insert into public.meals (household_id, name, minutes, tags)
     values (hid, m ->> 'name', (m ->> 'minutes')::int, array(select jsonb_array_elements_text(m -> 'tags')))
     returning id into mid;
 
     insert into public.meal_ingredients (meal_id, ingredient_id)
     select mid, i.id from public.ingredients i
-    where i.household_id = hid and i.name in (select jsonb_array_elements_text(m -> 'ingredients'));
-
-    insert into public.cook_log (household_id, meal_id, cooked_on, cooked_by)
-    values (hid, mid, current_date - (m ->> 'last')::int, null);
+    where i.household_id = hid and lower(i.name) in (select lower(t) from jsonb_array_elements_text(m -> 'ingredients') t);
   end loop;
-
-  insert into public.shopping_items (household_id, name, created_by)
-  select hid, s, null from jsonb_array_elements_text(shop) s;
 end;
 $$;
 
-create function public.create_household(p_name text, p_display_name text)
+create or replace function public.create_household(p_name text, p_display_name text)
 returns uuid
 language plpgsql
 security definer
@@ -70,7 +66,7 @@ begin
 end;
 $$;
 
-create function public.join_household(p_code text, p_display_name text)
+create or replace function public.join_household(p_code text, p_display_name text)
 returns uuid
 language plpgsql
 security definer
