@@ -26,10 +26,11 @@ Lokálně jde všechno pustit i přes Docker: `supabase start`, klíče vypíše
 
 ### Čtení fotek do spíže
 
-Funkce `parse-photos` posílá fotky účtenek, nákupu nebo lednice do Claude a vrací seznam položek k potvrzení. Klíč patří jen do Supabase secrets:
+Účtenky se čtou zdarma přímo v prohlížeči přes Tesseract.js (`src/lib/ocr.ts`): text se rozpozná v telefonu, řádky se spárují se surovinami domácnosti (`src/lib/receipt.ts`) a před uložením je jde upravit. Rozpoznávací data (asi 5 MB) se stáhnou z jsDelivr při prvním použití a pak zůstanou v mezipaměti. Fotky lednice nebo nákupu tímhle způsobem přečíst nejdou, jen tištěný text.
+
+Volitelně jde zapnout čtení přes Claude, které zvládne i fotky lednice, ale platí se za něj. Stačí do Supabase secrets přidat `ANTHROPIC_API_KEY`; aplikace to pozná sama a fotky začne posílat funkci `parse-photos`.
 
 ```bash
-supabase secrets set ANTHROPIC_API_KEY=...
 supabase functions deploy parse-photos
 supabase functions deploy device-code
 ```

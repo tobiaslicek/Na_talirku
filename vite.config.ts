@@ -34,6 +34,11 @@ export default defineConfig({
             handler: "StaleWhileRevalidate",
             options: { cacheName: "fonts", expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 } },
           },
+          {
+            urlPattern: ({ url }) => url.origin === "https://cdn.jsdelivr.net" && url.pathname.includes("tesseract"),
+            handler: "CacheFirst",
+            options: { cacheName: "ocr", expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
         ],
       },
     }),

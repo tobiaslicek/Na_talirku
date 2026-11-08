@@ -42,8 +42,8 @@ export function Pantry() {
             </svg>
           </span>
           <span>
-            <span className="receipt-t">Vyfotit, co máme</span>
-            <span className="receipt-s">Účtenku, nákup nebo lednici. Položky sepíšu a před uložením je upravíš.</span>
+            <span className="receipt-t">Vyfotit účtenku</span>
+            <span className="receipt-s">{"Položky z\u00a0ní sepíšu do spíže a\u00a0před uložením je upravíš."}</span>
           </span>
         </button>
         <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={onFiles} />

@@ -3,7 +3,7 @@ import { useSheets } from "../components/sheets";
 import { useToast } from "../components/Toast";
 import { plural } from "../lib/format";
 import { ZONE_LABEL } from "../lib/labels";
-import { parsePhotos, PhotosUnavailable } from "../lib/photos";
+import { parsePhotos } from "../lib/photos";
 import { useStore } from "../lib/store";
 import { ZONES, type Zone } from "../lib/types";
 
@@ -22,6 +22,8 @@ export function PhotoImport({ files }: { files: File[] }) {
   const toast = useToast();
   const { close } = useSheets();
   const [phase, setPhase] = useState<"reading" | "review">("reading");
+  const [local, setLocal] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [note, setNote] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
@@ -30,21 +32,22 @@ export function PhotoImport({ files }: { files: File[] }) {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const known = store.snap.ingredients.map((i) => i.name);
-    parsePhotos(files, known)
-      .then((items) => {
+    const known = store.snap.ingredients.map((i) => ({ name: i.name, zone: i.zone }));
+    parsePhotos(files, known, () => setLocal(true), setProgress)
+      .then(({ items, local }) => {
         setRows(
           items.map((it) => {
             const existing = store.findIngredient(it.name);
             return newRow({ raw: it.raw, name: existing?.name ?? it.name.toLowerCase(), zone: existing?.tracked ? existing.zone : it.zone });
           }),
         );
-        if (!items.length) setNote("Na fotkách nevidím žádné potraviny. Můžeš je dopsat ručně.");
+        if (!items.length) setNote(local ? "Na fotce jsem nenašel čitelnou účtenku. Zdarma umím přečíst jen účtenky, potraviny v lednici ne. Položky můžeš dopsat ručně." : "Na fotkách nevidím žádné potraviny. Můžeš je dopsat ručně.");
+        else if (local) setNote("Názvy z účtenky jsou zkrácené, tak je zkontroluj. Co nechceš, odškrtni.");
       })
       .catch((e) => {
         console.error(e);
         setRows([newRow()]);
-        setNote(e instanceof PhotosUnavailable ? "Čtení fotek funguje až s napojením na Supabase. Zatím můžeš položky dopsat ručně." : "Fotky se nepodařilo přečíst. Zkus to znovu, nebo položky dopiš ručně.");
+        setNote(navigator.onLine ? "Fotky se nepodařilo přečíst. Zkus to znovu, nebo položky dopiš ručně." : "Poprvé potřebuje čtení účtenek internet. Zkus to znovu, až budeš online, nebo položky dopiš ručně.");
       })
       .finally(() => setPhase("review"));
   }, [files, store]);
@@ -68,7 +71,11 @@ export function PhotoImport({ files }: { files: File[] }) {
         <h2 className="sheet-title" id="sheet-title">
           Čtu {files.length === 1 ? "fotku" : "fotky"}
         </h2>
-        <p className="meta">Chvilku to trvá, sepisuju, co na {files.length === 1 ? "ní" : "nich"} je.</p>
+        <p className="meta">
+          {local
+            ? `Čtu účtenku přímo v telefonu, nikam ji neposílám. Poprvé to trvá déle.${progress > 0 ? ` Hotovo ${Math.round(progress * 100)}\u00a0%.` : ""}`
+            : `Chvilku to trvá, sepisuju, co na ${files.length === 1 ? "ní" : "nich"} je.`}
+        </p>
         <div className="reading-dots" aria-hidden="true">
           <span />
           <span />

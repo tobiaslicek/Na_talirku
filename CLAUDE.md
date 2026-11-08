@@ -79,6 +79,7 @@ skóre    = pokrytí × 55 + dní × 0,9 + náhoda(0–22)
 
 ## AI (fáze 3)
 
+- Nechceme platit za žádná API. Všechno musí fungovat zdarma; placená AI smí být jen volitelné vylepšení, které se zapne samo, když někdo doplní klíč. Účtenky se proto čtou přímo v prohlížeči (Tesseract.js, `src/lib/ocr.ts` a `src/lib/receipt.ts`) a `parse-photos` s Claude se použije jen tehdy, když má funkce `ANTHROPIC_API_KEY`.
 - `parse-receipt`: fotka účtenky → vision model → JSON `[{ raw, name, ingredient_id | null }]` → potvrzovací obrazovka (ukázka je v prototypu v záložce Doma) → uložit stavy a odškrtnout odpovídající položky v nákupu.
 - `suggest-from-text`: volný text („mám půlku zelí a slaninu“) → návrhy z katalogu, případně nové jídlo.
 - `generate-photo`: fotka jídla přes OpenAI Images podle šablony níže, uložit do Storage, jedna fotka na jídlo.

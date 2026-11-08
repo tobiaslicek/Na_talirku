@@ -1,3 +1,5 @@
+import { readReceipts } from "./ocr";
+import type { KnownIngredient } from "./receipt";
 import { supabase } from "./supabase";
 import type { Zone } from "./types";
 
@@ -5,6 +7,11 @@ export interface ParsedItem {
   raw: string;
   name: string;
   zone: Zone;
+}
+
+export interface PhotoResult {
+  items: ParsedItem[];
+  local: boolean;
 }
 
 const MAX_EDGE = 1568;
@@ -24,12 +31,29 @@ async function toJpeg(file: File): Promise<{ media_type: "image/jpeg"; data: str
   return { media_type: "image/jpeg", data: btoa(bin) };
 }
 
-export class PhotosUnavailable extends Error {}
+let aiReady: Promise<boolean> | null = null;
 
-export async function parsePhotos(files: File[], known: string[]): Promise<ParsedItem[]> {
-  if (!supabase) throw new PhotosUnavailable();
-  const images = await Promise.all(files.slice(0, 6).map(toJpeg));
-  const { data, error } = await supabase.functions.invoke<{ items: ParsedItem[] }>("parse-photos", { body: { images, known } });
-  if (error || !data) throw error ?? new Error("empty");
-  return data.items;
+// An empty request answers 400 (no images) only when the function has its API key, so the photos are uploaded only if the AI can read them.
+function aiAvailable() {
+  if (!supabase) return Promise.resolve(false);
+  aiReady ??= supabase.functions
+    .invoke("parse-photos", { body: {} })
+    .then(({ error }) => (error as { context?: Response } | null)?.context?.status === 400)
+    .catch(() => false);
+  return aiReady;
+}
+
+export async function parsePhotos(files: File[], known: KnownIngredient[], onLocal: () => void, onProgress: (share: number) => void): Promise<PhotoResult> {
+  const picked = files.slice(0, 6);
+  if (await aiAvailable()) {
+    try {
+      const images = await Promise.all(picked.map(toJpeg));
+      const { data, error } = await supabase!.functions.invoke<{ items: ParsedItem[] }>("parse-photos", { body: { images, known: known.map((k) => k.name) } });
+      if (!error && data) return { items: data.items, local: false };
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  onLocal();
+  return { items: await readReceipts(picked, known, onProgress), local: true };
 }
