@@ -7,3 +7,5 @@ dev-dist
 *.log
 supabase/.branches
 supabase/.temp
+.vercel
+.env
