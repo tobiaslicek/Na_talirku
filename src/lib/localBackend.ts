@@ -36,7 +36,7 @@ function seed(): Snapshot {
   };
   for (const m of SEED_MEALS) {
     const id = crypto.randomUUID();
-    snap.meals.push({ id, household_id: hid, name: m.name, minutes: m.minutes, tags: m.tags, photo_path: null, created_at: now });
+    snap.meals.push({ id, household_id: hid, name: m.name, minutes: m.minutes, tags: m.tags, recipe: m.recipe?.join("\n") ?? null, photo_path: null, created_at: now });
     for (const n of m.ingredients) {
       let ing = byName.get(n);
       if (!ing) {
@@ -46,7 +46,7 @@ function seed(): Snapshot {
       }
       snap.mealIngredients.push({ meal_id: id, ingredient_id: ing.id });
     }
-    snap.cookLog.push({ id: crypto.randomUUID(), household_id: hid, meal_id: id, cooked_on: isoDate(new Date(today.getTime() - m.lastDaysAgo * 864e5)), cooked_by: null });
+    if (m.lastDaysAgo !== undefined) snap.cookLog.push({ id: crypto.randomUUID(), household_id: hid, meal_id: id, cooked_on: isoDate(new Date(today.getTime() - m.lastDaysAgo * 864e5)), cooked_by: null });
   }
   return snap;
 }

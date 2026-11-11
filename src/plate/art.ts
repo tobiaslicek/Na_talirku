@@ -350,6 +350,7 @@ export const DISHES: Record<string, DishSpec> = {
   tacos: { sauce: ["#7A4A2A", "#9C6A44"], sauceR: 40, garnish: [["smetana", 116, 86], ["syr", 100, 100], ["cibulka", 121, 80]] },
   shakshuka: { sauce: ["#B83A22", "#D9603F"], sauceR: 44, protein: "volske", garnish: [["petrzel", 86, 110]] },
   tofu: { sauce: ["#D4552C", "#EE8450"], protein: "cubes", meat: ["#F1E2BC", "#D9BF85"], garnish: [["tvaroh", 84, 104], ["bazalka", 118, 112]] },
+  arasidove: { side: "testoviny", nest: [100, 100, 36], top: ["#A8723A", "#CC995C"], garnish: [["krutony", 100, 100], ["cibulka", 112, 86]] },
 };
 
 const SEED_ART: Record<string, string> = {
@@ -363,6 +364,7 @@ const SEED_ART: Record<string, string> = {
   "tacos": "tacos",
   "shakshuka": "shakshuka",
   "tofu ve sladkokyselé chilli omáčce": "tofu",
+  "arašídové udon nudle": "arasidove",
 };
 
 const artName = (name: string) => name.trim().toLowerCase().replace(/\s+/g, " ");

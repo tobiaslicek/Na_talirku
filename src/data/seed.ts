@@ -5,8 +5,9 @@ export interface SeedMeal {
   name: string;
   minutes: number;
   tags: Tag[];
-  lastDaysAgo: number;
+  lastDaysAgo?: number;
   ingredients: string[];
+  recipe?: string[];
 }
 
 export const SEED_MEALS: SeedMeal[] = [
@@ -20,6 +21,18 @@ export const SEED_MEALS: SeedMeal[] = [
   { art: "tacos", name: "Tacos", minutes: 30, tags: ["rychle"], lastDaysAgo: 11, ingredients: ["tortilly", "fazole", "rajčata", "kukuřice", "česnek", "cibule", "salsa", "čedar", "avokádo", "zakysaná smetana"] },
   { art: "shakshuka", name: "Shakshuka", minutes: 30, tags: ["rychle", "vikend"], lastDaysAgo: 30, ingredients: ["vejce", "loupaná rajčata", "paprika", "cibule", "česnek"] },
   { art: "tofu", name: "Tofu ve sladkokyselé chilli omáčce", minutes: 25, tags: ["rychle"], lastDaysAgo: 5, ingredients: ["tofu", "sladkokyselá chilli omáčka", "mražená zelenina", "rýže"] },
+  {
+    art: "arasidove",
+    name: "Arašídové udon nudle",
+    minutes: 20,
+    tags: ["rychle"],
+    ingredients: ["udon nudle", "arašídové máslo", "sójová omáčka", "cukr", "rýžový olej", "zázvor", "česnek"],
+    recipe: [
+      "Udon nudle uvař podle návodu a sceď, trochu vody z vaření si nech.",
+      "Arašídové máslo rozmíchej se sójovou omáčkou, lžičkou cukru, nastrouhaným zázvorem, prolisovaným česnekem a trochou vody z nudlí.",
+      "Na pánvi rozehřej sezamový nebo rýžový olej, krátce na něm prohřej nudle a promíchej je s omáčkou.",
+    ],
+  },
 ];
 
 export const SEED_PANTRY: Record<Zone, [string, IngredientState][]> = {
