@@ -5,14 +5,15 @@ Sdílená aplikace pro domácnost, která řeší, co si dnes uvařit a co k tom
 ## Ukázka
 
 <p>
-  <img src="docs/dnes.jpg" alt="Obrazovka Dnes s talířem a tlačítkem Poraď mi" width="160">
-  <img src="docs/navrhy.jpg" alt="Návrhy jídel s tím, co dokoupit" width="160">
-  <img src="docs/jidla.jpg" alt="Katalog našich jídel" width="160">
-  <img src="docs/detail.jpg" alt="Detail jídla se surovinami a výběrem dne" width="160">
-  <img src="docs/spiz.jpg" alt="Spíž se stavy surovin" width="160">
+  <img src="docs/dnes.jpg" alt="Obrazovka Dnes s talířem a tlačítkem Poraď mi" width="400">
+  <img src="docs/navrhy.jpg" alt="Návrhy jídel s tím, co dokoupit" width="400">
+</p>
+<p>
+  <img src="docs/jidla.jpg" alt="Katalog našich jídel" width="400">
+  <img src="docs/spiz.jpg" alt="Spíž se stavy surovin" width="400">
 </p>
 
-Obrázky jsou z ukázkového režimu na mobilu.
+Obrázky jsou z ukázkového režimu na počítači.
 
 ## Co umí
 
@@ -23,6 +24,7 @@ Obrázky jsou z ukázkového režimu na mobilu.
 - **Dlouho jsme neměli a Dochází.** Na hlavní obrazovce vidíte jídla, která jste tři týdny nevařili, a suroviny, které dochází.
 - **Jídla.** Katalog vašich jídel s filtry podle štítků, detailem, historií vaření a podobnými novými jídly.
 - **Spíž.** Suroviny v lednici, mrazáku a spíži přepínáte klepnutím mezi máme, dochází a došlo.
+- **Napsat, co máme.** Napíšete nebo nadiktujete třeba „máme vejce, mléko došlo“ a aplikace po kontrole nastaví stavy ve spíži.
 - **Účtenky.** Vyfocenou účtenku aplikace přečte přímo v telefonu a položky po kontrole zapíše do spíže.
 - **Nákup.** Společný seznam, který oba vidíte hned po změně; odškrtnutá položka se vrátí do spíže jako máme.
 - **Sdílení.** Jídlo nebo nákupní seznam jde poslat ve zprávě s odkazem, který otevře přímo aplikaci.
@@ -39,7 +41,7 @@ npm run build
 npm test
 ```
 
-Bez `.env.local` běží aplikace v ukázkovém režimu: přihlášení se přeskočí a data se ukládají jen do prohlížeče. `npm run build` zkontroluje typy a sestaví aplikaci s PWA do `dist/`. `npm test` spustí testy doporučování a čtení účtenek.
+Bez `.env.local` běží aplikace v ukázkovém režimu: přihlášení se přeskočí a data se ukládají jen do prohlížeče. `npm run build` zkontroluje typy a sestaví aplikaci s PWA do `dist/`. `npm test` spustí testy doporučování, čtení účtenek a zadávání spíže textem.
 
 Napojení na vlastní Supabase:
 
@@ -64,6 +66,7 @@ Další skripty: `npm run icons` přegeneruje ikony PWA z `public/icon.svg`, `np
 | `src/lib/store.tsx` | stav aplikace a zápisy do databáze |
 | `src/lib/backend.ts`, `localBackend.ts` | napojení na Supabase a ukázkový režim |
 | `src/lib/ocr.ts`, `receipt.ts` | čtení účtenek |
+| `src/lib/pantryText.ts` | rozbor textu „máme vejce, mléko došlo“ |
 | `src/data/` | náš katalog jídel a knihovna nápadů |
 | `src/styles/` | barvy, typografie a styly |
 | `supabase/migrations/` | databázové schéma a pravidla přístupu |
