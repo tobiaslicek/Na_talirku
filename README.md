@@ -1,56 +1,72 @@
 # Na talířku
 
-Sdílená aplikace pro domácnost: co si dnes dáme a co nakoupit. Zadání a pravidla jsou v [CLAUDE.md](CLAUDE.md), design v [design/prototype.html](design/prototype.html).
+Sdílená aplikace pro domácnost, která řeší, co si dnes uvařit a co k tomu dokoupit. Doporučuje jídla podle toho, co máte doma a jak dlouho jste je neměli, a nabízí i nová vegetariánská jídla. Je dělaná hlavně pro mobil jako aplikace na ploše, funguje ale i na počítači.
 
-## Rychlý start bez Supabase
+## Ukázka
+
+<p>
+  <img src="docs/dnes.jpg" alt="Obrazovka Dnes s talířem a tlačítkem Poraď mi" width="160">
+  <img src="docs/navrhy.jpg" alt="Návrhy jídel s tím, co dokoupit" width="160">
+  <img src="docs/jidla.jpg" alt="Katalog našich jídel" width="160">
+  <img src="docs/detail.jpg" alt="Detail jídla se surovinami a výběrem dne" width="160">
+  <img src="docs/spiz.jpg" alt="Spíž se stavy surovin" width="160">
+</p>
+
+Obrázky jsou z ukázkového režimu na mobilu.
+
+## Co umí
+
+- **Poraď mi.** Po klepnutí na talíř ukáže tři jídla, u každého čas a jestli máte všechno doma, nebo co dokoupit.
+- **Filtry.** Návrhy jdou zúžit podle času, chuti a toho, jestli chcete osvědčená jídla, nová, nebo obojí.
+- **Nová jídla.** Knihovna vegetariánských nápadů s postupem; srdíčkem nápad převezmete mezi svá jídla, palcem dolů ho skryjete.
+- **Jídelníček.** Jídlo naplánujete na dnes nebo na některý z dalších šesti dnů a chybějící suroviny se přidají do nákupu.
+- **Dlouho jsme neměli a Dochází.** Na hlavní obrazovce vidíte jídla, která jste tři týdny nevařili, a suroviny, které dochází.
+- **Jídla.** Katalog vašich jídel s filtry podle štítků, detailem, historií vaření a podobnými novými jídly.
+- **Spíž.** Suroviny v lednici, mrazáku a spíži přepínáte klepnutím mezi máme, dochází a došlo.
+- **Účtenky.** Vyfocenou účtenku aplikace přečte přímo v telefonu a položky po kontrole zapíše do spíže.
+- **Nákup.** Společný seznam, který oba vidíte hned po změně; odškrtnutá položka se vrátí do spíže jako máme.
+- **Sdílení.** Jídlo nebo nákupní seznam jde poslat ve zprávě s odkazem, který otevře přímo aplikaci.
+- **Domácnost.** Přihlášení e-mailem, druhý člen se připojí kódem domácnosti. Na další zařízení se jde přihlásit kódem bez e-mailu.
+
+## Technologie
+
+React 19, TypeScript a Vite, PWA přes `vite-plugin-pwa`, animace v GSAP. Data, přihlášení a sdílení v reálném čase běží na Supabase, účtenky čte Tesseract.js v prohlížeči.
 
 ```bash
 npm install
 npm run dev
+npm run build
+npm test
 ```
 
-Bez `.env.local` běží aplikace v ukázkovém režimu: data z prototypu se uloží jen do prohlížeče, přihlášení se přeskočí. Hodí se na ladění vzhledu a animací.
+Bez `.env.local` běží aplikace v ukázkovém režimu: přihlášení se přeskočí a data se ukládají jen do prohlížeče. `npm run build` zkontroluje typy a sestaví aplikaci s PWA do `dist/`. `npm test` spustí testy doporučování a čtení účtenek.
 
-## Napojení na Supabase
+Napojení na vlastní Supabase:
 
-1. Založ projekt na [supabase.com](https://supabase.com) a nainstaluj CLI (`brew install supabase/tap/supabase`).
-2. Propoj repozitář a nahraj migrace:
-   ```bash
-   supabase link --project-ref <ref-projektu>
-   supabase db push
-   ```
-3. Zkopíruj `.env.example` do `.env.local` a doplň `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` (Project Settings → API).
-4. V Authentication → URL Configuration nastav Site URL na adresu aplikace (lokálně `http://localhost:5173`, pak doménu z Vercelu) a obě přidej do Redirect URLs.
+1. Propoj projekt a nahraj migrace: `supabase link --project-ref <ref-projektu>` a `supabase db push`.
+2. Zkopíruj `.env.example` do `.env.local` a doplň `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY`.
+3. V Authentication → URL Configuration nastav Site URL a Redirect URLs na adresu aplikace.
+4. Nasaď funkci pro přihlášení kódem: `supabase functions deploy device-code`.
 
-Lokálně jde všechno pustit i přes Docker: `supabase start`, klíče vypíše `supabase status` a e-maily s odkazem chodí do Inbucketu na `http://127.0.0.1:54324`.
+Volitelně jde zapnout čtení fotek přes Clauda (zvládne i fotku lednice). Stačí do Supabase secrets přidat `ANTHROPIC_API_KEY` a nasadit `supabase functions deploy parse-photos`. Bez klíče se účtenky čtou zdarma v prohlížeči.
 
-### Čtení fotek do spíže
+Další skripty: `npm run icons` přegeneruje ikony PWA z `public/icon.svg`, `npm run seed:sql` vypíše SQL seed z `src/data/seed.ts`.
 
-Účtenky se čtou zdarma přímo v prohlížeči přes Tesseract.js (`src/lib/ocr.ts`): text se rozpozná v telefonu, řádky se spárují se surovinami domácnosti (`src/lib/receipt.ts`) a před uložením je jde upravit. Rozpoznávací data (asi 5 MB) se stáhnou z jsDelivr při prvním použití a pak zůstanou v mezipaměti. Fotky lednice nebo nákupu tímhle způsobem přečíst nejdou, jen tištěný text.
+## Struktura
 
-Volitelně jde zapnout čtení přes Claude, které zvládne i fotky lednice, ale platí se za něj. Stačí do Supabase secrets přidat `ANTHROPIC_API_KEY`; aplikace to pozná sama a fotky začne posílat funkci `parse-photos`.
-
-```bash
-supabase functions deploy parse-photos
-supabase functions deploy device-code
-```
-
-### Domácnost
-
-Po prvním přihlášení se založí domácnost s naším katalogem jídel a spíží (`src/data/seed.ts`), zatím bez historie vaření. Druhý člen se přihlásí svým e-mailem a zadá kód domácnosti, který najdeš pod kolečkem vpravo nahoře. Funguje i jeden společný účet.
-
-Odkaz z e-mailu se otevře ve výchozím prohlížeči. Pro přihlášení jinde (jiný prohlížeč, aplikace na ploše telefonu) si v přihlášené aplikaci pod kolečkem nech ukázat kód a na druhém zařízení zvol „Mám kód z jiného zařízení“. Kód vytváří funkce `device-code` bez posílání e-mailu, takže nespotřebuje limit Supabase na 2 e-maily za hodinu.
-
-Jídlo z návrhů nebo z detailu jde poslat ve zprávě, stejně tak nákupní seznam. Zpráva obsahuje odkaz, který v aplikaci otevře přímo dané jídlo nebo sdílený nákup k odškrtávání.
-
-## Deploy na Vercel
-
-Importuj repozitář na Vercelu (framework Vite) a nastav proměnné `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY`. Routování je přes hash, takže žádné rewrites nejsou potřeba.
-
-## Skripty
-
-- `npm run dev`: vývojový server
-- `npm run build`: typová kontrola a produkční build s PWA
-- `npm test`: testy doporučování a formátování
-- `npm run icons`: přegeneruje ikony PWA z `public/icon.svg`
-- `npm run seed:sql`: vypíše SQL seed funkce z `src/data/seed.ts` (při změně seedu ho ulož jako novou migraci)
+| Cesta | Obsah |
+|---|---|
+| `src/App.tsx` | kostra aplikace, navigace a otevírání detailů |
+| `src/screens/` | obrazovky Dnes, Jídla, Spíž, Nákup, detaily a přihlášení |
+| `src/components/` | sdílené prvky: spodní lišta, bottom sheet, čipy, toast |
+| `src/plate/` | talíř s okrajem cibuláku a ilustrace jídel |
+| `src/lib/recommend.ts` | výpočet doporučení a podobných jídel |
+| `src/lib/store.tsx` | stav aplikace a zápisy do databáze |
+| `src/lib/backend.ts`, `localBackend.ts` | napojení na Supabase a ukázkový režim |
+| `src/lib/ocr.ts`, `receipt.ts` | čtení účtenek |
+| `src/data/` | náš katalog jídel a knihovna nápadů |
+| `src/styles/` | barvy, typografie a styly |
+| `supabase/migrations/` | databázové schéma a pravidla přístupu |
+| `supabase/functions/` | funkce pro přihlášení kódem a čtení fotek |
+| `design/prototype.html` | klikací prototyp designu |
+| `docs/` | obrázky do tohoto README |
