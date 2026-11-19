@@ -63,6 +63,7 @@ export interface IdeaInfo {
 export interface StockRow {
   name: string;
   zone: Zone;
+  state?: IngredientState;
 }
 
 export interface StockResult {
@@ -486,13 +487,13 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
             if (!n || touched.some((t) => norm(t.name) === n)) continue;
             const existing = snap.ingredients.find((i) => norm(i.name) === n);
             if (existing) {
-              const patch: Record<string, unknown> = { state: "mame", tracked: true };
+              const patch: Record<string, unknown> = { state: r.state ?? "mame", tracked: true };
               if (!existing.tracked || existing.zone !== r.zone) patch.zone = r.zone;
               await update("ingredients", existing.id, patch);
               touched.push(existing);
               result.restocked++;
             } else {
-              const ing: Ingredient = { id: crypto.randomUUID(), household_id: hid, name: n, zone: r.zone, state: "mame", tracked: true };
+              const ing: Ingredient = { id: crypto.randomUUID(), household_id: hid, name: n, zone: r.zone, state: r.state ?? "mame", tracked: true };
               fresh.push(ing);
               touched.push(ing);
               result.added++;
@@ -501,7 +502,7 @@ export function StoreProvider({ backend, userId, onError, fallback, children }: 
           await insert("ingredients", fresh as unknown as Row[]);
           const open = (snapRef.current?.shop ?? []).filter((x) => !x.done);
           for (const item of open) {
-            const hit = touched.find((t) => t.id === item.ingredient_id || norm(t.name) === norm(item.name));
+            const hit = touched.find((t) => (t.id === item.ingredient_id || norm(t.name) === norm(item.name)) && (rows.find((r) => norm(r.name) === norm(t.name))?.state ?? "mame") === "mame");
             if (!hit) continue;
             await update("shopping_items", item.id, { done: true, done_at: now() });
             result.bought++;

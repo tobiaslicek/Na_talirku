@@ -14,6 +14,7 @@ import { supabase } from "./lib/supabase";
 import { PlateDefs } from "./plate/Plate";
 import { Login, Onboarding } from "./screens/Gate";
 import { HomeSheet } from "./screens/HomeSheet";
+import { PantrySay } from "./screens/PantrySay";
 import { IdeaDetail } from "./screens/IdeaDetail";
 import { IngredientForm } from "./screens/IngredientForm";
 import { PhotoImport } from "./screens/PhotoImport";
@@ -42,6 +43,7 @@ function Shell() {
       openHome: () => setSheet({ kind: "home" }),
       openIngredient: (id) => setSheet({ kind: "ingredient", id }),
       openImport: (files) => setSheet({ kind: "import", files }),
+      openSay: () => setSheet({ kind: "say" }),
       close: () => setSheet(null),
     }),
     [],
@@ -82,6 +84,7 @@ function Shell() {
         {sheet?.kind === "home" && <HomeSheet />}
         {sheet?.kind === "ingredient" && <IngredientForm key={sheet.id ?? "new"} id={sheet.id} />}
         {sheet?.kind === "import" && <PhotoImport files={sheet.files} />}
+        {sheet?.kind === "say" && <PantrySay />}
       </Sheet>
     </SheetsCtx.Provider>
   );

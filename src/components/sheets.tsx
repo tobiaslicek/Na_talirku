@@ -7,6 +7,7 @@ export type SheetState =
   | { kind: "home" }
   | { kind: "ingredient"; id?: string }
   | { kind: "import"; files: File[] }
+  | { kind: "say" }
   | null;
 
 export interface Sheets {
@@ -16,9 +17,10 @@ export interface Sheets {
   openHome: () => void;
   openIngredient: (id?: string) => void;
   openImport: (files: File[]) => void;
+  openSay: () => void;
   close: () => void;
 }
 
 const noop = () => {};
-export const SheetsCtx = createContext<Sheets>({ openMeal: noop, openIdea: noop, openEdit: noop, openHome: noop, openIngredient: noop, openImport: noop, close: noop });
+export const SheetsCtx = createContext<Sheets>({ openMeal: noop, openIdea: noop, openEdit: noop, openHome: noop, openIngredient: noop, openImport: noop, openSay: noop, close: noop });
 export const useSheets = () => useContext(SheetsCtx);

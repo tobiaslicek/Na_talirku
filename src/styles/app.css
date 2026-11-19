@@ -1320,8 +1320,11 @@ button {
 }
 @media (min-width: 640px) {
   .pantry-actions {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .pantry-actions .btn {
+    grid-column: 1 / -1;
   }
 }
 .items.editing .item {
@@ -1746,4 +1749,56 @@ html.lenis body {
     column-gap: 48px;
     border-top: 0;
   }
+}
+
+.say-text {
+  margin-top: 18px;
+  min-height: 132px;
+}
+.say-mic {
+  margin-top: 12px;
+  gap: 8px;
+}
+.say-mic[aria-pressed="true"] {
+  border-color: var(--poppy);
+  color: var(--poppy);
+}
+.say-states {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.say-state {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 14px;
+  transition: transform 0.16s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.say-state:active {
+  transform: scale(0.96);
+}
+.say-state:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.say-state[aria-checked="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+  font-weight: 600;
+}
+.say-state[aria-checked="true"][data-s="doslo"] {
+  background: var(--poppy);
+  border-color: var(--poppy);
+  color: var(--on-poppy);
+}
+.say-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
 }

@@ -9,7 +9,7 @@ import { ZONES } from "../lib/types";
 
 export function Pantry() {
   const store = useStore();
-  const { openIngredient, openImport } = useSheets();
+  const { openIngredient, openImport, openSay } = useSheets();
   const root = useRef<HTMLElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [editing, setEditing] = useState(false);
@@ -34,6 +34,18 @@ export function Pantry() {
       </header>
       <Stitch />
       <div className="pantry-actions">
+        <button className="receipt" onClick={openSay}>
+          <span className="ico-lg">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3" />
+              <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" />
+            </svg>
+          </span>
+          <span>
+            <span className="receipt-t">Napsat, co máme</span>
+            <span className="receipt-s">{"Napiš nebo nadiktuj, co máte a\u00a0co došlo. Stavy nastavím sám."}</span>
+          </span>
+        </button>
         <button className="receipt" onClick={() => fileInput.current?.click()}>
           <span className="ico-lg">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

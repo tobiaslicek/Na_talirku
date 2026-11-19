@@ -6,7 +6,7 @@ export interface KnownIngredient {
   zone: Zone;
 }
 
-const fold = (s: string) =>
+export const fold = (s: string) =>
   s
     .toLowerCase()
     .normalize("NFD")

@@ -72,7 +72,7 @@ skóre    = pokrytí × 55 + dní × 0,9 + náhoda(0–22)
 - **Dlouho jsme neměli:** jídla, která nebyla 21+ dní, seřazená od nejstaršího.
 - **Dochází:** suroviny ve stavu `dochazi`, tlačítko „Přidat do nákupu“.
 - **Jídla:** mřížka talířů, filtry podle tagů, detail v bottom sheetu (suroviny se stavem, „Tohle uvaříme“, „Přidat chybějící do nákupu“). Sheet jde zavřít tažením dolů.
-- **Doma (spíž):** zóny Lednice, Mrazák, Spíž. Klepnutí cykluje stav máme → dochází → došlo.
+- **Doma (spíž):** zóny Lednice, Mrazák, Spíž. Klepnutí cykluje stav máme → dochází → došlo. „Napsat, co máme“ přijme text nebo diktování („máme vejce, nemáme papriku, mléko došlo“), `src/lib/pantryText.ts` z něj bez AI vytáhne suroviny a stavy a před uložením je ukáže ke kontrole.
 - **Nákup:** přidání položky, odškrtnutí. Odškrtnutá položka napojená na surovinu nastaví její stav na `mame`. „Smazat koupené“.
 
 ## Animace
